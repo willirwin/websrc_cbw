@@ -12,9 +12,11 @@ Purpose:
 - Exercise relay control endpoints
 - Observe digital inputs and values
 - Verify backend behavior without opening a browser
+- Test login/session flows and server-backed setup configuration
 """
 
 import argparse
+import json
 import time
 from typing import Any, Dict, Optional, Tuple
 
@@ -88,6 +90,40 @@ def format_uptime(ms: Any) -> str:
 
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}.{millis:03d}"
 
+
+def default_ui_config() -> Dict[str, Any]:
+    # default UI configuration that mirrors server-side defaults
+    return {
+        "title": "CASTLEROAD",
+        "relays": [
+            {"id": 1, "name": "Relay 1", "enabled": True},
+            {"id": 2, "name": "Relay 2", "enabled": True},
+            {"id": 3, "name": "Relay 3", "enabled": True},
+            {"id": 4, "name": "Relay 4", "enabled": True},
+        ],
+        "digitalInputs": [
+            {"id": 1, "name": "Digital Input 1", "enabled": True},
+            {"id": 2, "name": "Digital Input 2", "enabled": True},
+            {"id": 3, "name": "Digital Input 3", "enabled": True},
+            {"id": 4, "name": "Digital Input 4", "enabled": True},
+        ],
+        "sensors": [
+            {"key": "vin", "name": "VIN", "enabled": True},
+            {"key": "register1", "name": "Register 1", "enabled": True},
+            {"key": "oneWire1", "name": "OneWire 1", "enabled": True},
+        ],
+        "appearance": {
+            "showClock": True,
+            "showUptime": True,
+            "showConnection": True,
+        },
+    }
+
+
+def print_json(data: Any) -> None:
+    # prints structured JSON output for CLI readability
+    print(json.dumps(data, indent=4, sort_keys=True))
+
 # -----------------------------------------------------------------------------
 # DeviceClient
 # -----------------------------------------------------------------------------
@@ -99,6 +135,7 @@ class DeviceClient:
     This class intentionally mirrors what the browser does:
     - GET /customState.json for state
     - POST /api/relay/... for relay control
+    - /api/login + /api/ui-config for setup flows
     """
 
     def __init__(
@@ -189,6 +226,59 @@ class DeviceClient:
             json={"ms": int(ms)},
         ) or {}
 
+    # -------------------------------------------------------------------------
+    # Auth + setup configuration methods
+    # -------------------------------------------------------------------------
+
+    def get_session(self) -> Dict[str, Any]:
+        # checks current auth status (cookie-backed session)
+        return self._request("GET", "/api/session") or {}
+
+    def login(self, username: str, password: str) -> Dict[str, Any]:
+        # logs in and stores session cookie in this session
+        return self._request(
+            "POST",
+            "/api/login",
+            json={"username": username, "password": password},
+        ) or {}
+
+    def logout(self) -> Dict[str, Any]:
+        # logs out and clears session cookie
+        return self._request("POST", "/api/logout") or {}
+
+    def get_credentials(self) -> Dict[str, Any]:
+        # fetches current username (password is never returned)
+        return self._request("GET", "/api/credentials") or {}
+
+    def update_credentials(
+        self,
+        current_password: str,
+        username: str,
+        password: str,
+    ) -> Dict[str, Any]:
+        # updates credentials after verifying current password
+        return self._request(
+            "POST",
+            "/api/credentials",
+            json={
+                "currentPassword": current_password,
+                "username": username,
+                "password": password,
+            },
+        ) or {}
+
+    def reset_credentials(self) -> Dict[str, Any]:
+        # resets credentials to admin/admin on the server
+        return self._request("POST", "/api/credentials/reset") or {}
+
+    def get_ui_config(self) -> Dict[str, Any]:
+        # fetches UI configuration (public read)
+        return self._request("GET", "/api/ui-config") or {}
+
+    def set_ui_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
+        # saves UI configuration (requires auth)
+        return self._request("POST", "/api/ui-config", json=config) or {}
+
 # -----------------------------------------------------------------------------
 # Console rendering helpers
 # -----------------------------------------------------------------------------
@@ -240,6 +330,8 @@ def main() -> int:
     p.add_argument("--base", default="http://localhost:8000")
     p.add_argument("--connect-timeout", type=float, default=0.5)
     p.add_argument("--read-timeout", type=float, default=2.0)
+    p.add_argument("--auth-user", help="Username for commands that require login")
+    p.add_argument("--auth-pass", help="Password for commands that require login")
 
     sub = p.add_subparsers(dest="cmd", required=True)
 
@@ -257,6 +349,34 @@ def main() -> int:
     wp.add_argument("--interval", type=float, default=0.5)
     wp.add_argument("--max-fails", type=int, default=3)
 
+    # auth/session helpers
+    sub.add_parser("session")
+
+    lp = sub.add_parser("login")
+    lp.add_argument("username")
+    lp.add_argument("password")
+
+    sub.add_parser("logout")
+
+    # credential management
+    cp = sub.add_parser("creds")
+    cps = cp.add_subparsers(dest="action", required=True)
+    cps.add_parser("show")
+    cset = cps.add_parser("set")
+    cset.add_argument("current_password")
+    cset.add_argument("username")
+    cset.add_argument("password")
+    cps.add_parser("reset")
+
+    # UI config management
+    cfg = sub.add_parser("config")
+    cfgs = cfg.add_subparsers(dest="action", required=True)
+    cfgs.add_parser("show")
+    cfgset = cfgs.add_parser("set")
+    cfgset.add_argument("--json", help="Raw JSON string for full config")
+    cfgset.add_argument("--file", help="Path to JSON file for full config")
+    cfgs.add_parser("reset")
+
     args = p.parse_args()
 
     cli = DeviceClient(
@@ -265,6 +385,36 @@ def main() -> int:
     )
 
     try:
+        def ensure_auth() -> bool:
+            # ensures a logged-in session for protected endpoints
+            try:
+                status = cli.get_session()
+                if status.get("authenticated"):
+                    return True
+            except Exception as e:
+                print(f"ERROR: {format_req_err(e)}")
+                return False
+
+            if args.auth_user and args.auth_pass:
+                try:
+                    cli.login(args.auth_user, args.auth_pass)
+                    return True
+                except Exception as e:
+                    print(f"ERROR: {format_req_err(e)}")
+                    return False
+
+            print("ERROR: login required (use login command or --auth-user/--auth-pass).")
+            return False
+
+        def load_config_payload() -> Dict[str, Any]:
+            # loads JSON config from CLI arguments
+            if args.json:
+                return json.loads(args.json)
+            if args.file:
+                with open(args.file, "r", encoding="utf-8") as fh:
+                    return json.load(fh)
+            raise ValueError("config set requires --json or --file")
+
         if args.cmd == "state":
             _print_state(cli.get_custom_state())
 
@@ -295,6 +445,44 @@ def main() -> int:
                     if args.max_fails > 0 and fails >= args.max_fails:
                         return 2
                 time.sleep(max(0.05, args.interval))
+
+        elif args.cmd == "session":
+            print_json(cli.get_session())
+
+        elif args.cmd == "login":
+            cli.login(args.username, args.password)
+            print("OK: logged in")
+
+        elif args.cmd == "logout":
+            cli.logout()
+            print("OK: logged out")
+
+        elif args.cmd == "creds":
+            if not ensure_auth():
+                return 2
+
+            if args.action == "show":
+                print_json(cli.get_credentials())
+            elif args.action == "set":
+                cli.update_credentials(args.current_password, args.username, args.password)
+                print("OK: credentials updated")
+            elif args.action == "reset":
+                print_json(cli.reset_credentials())
+
+        elif args.cmd == "config":
+            if args.action == "show":
+                print_json(cli.get_ui_config())
+            elif args.action == "set":
+                if not ensure_auth():
+                    return 2
+                cfg = load_config_payload()
+                cli.set_ui_config(cfg)
+                print("OK: config saved")
+            elif args.action == "reset":
+                if not ensure_auth():
+                    return 2
+                cli.set_ui_config(default_ui_config())
+                print("OK: config reset to defaults")
 
         return 0
 

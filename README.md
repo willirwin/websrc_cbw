@@ -33,6 +33,7 @@ Lightweight ControlByWeb-style demo UI and local dev server (Node) for an IoT co
 
 ## File map
 - `server.js` - Express dev server + simulated device state
+- `client.py` - CLI “browser” for state, relays, auth, and config
 - `index.html` - Main control UI
 - `login.html` - Admin login UI
 - `setup.html` - Admin setup UI
@@ -50,3 +51,12 @@ Lightweight ControlByWeb-style demo UI and local dev server (Node) for an IoT co
 ## Notes
 - This is a demo/dev LAN tool only; there is no real authentication.
 - Refreshing the page is the reconnect path (no manual reconnect button).
+
+## CLI usage (client.py)
+- `python client.py state` - show current device snapshot
+- `python client.py relay on|off|pulse <n> [--ms]` - control relays
+- `python client.py session` - show auth/session state
+- `python client.py login <user> <pass>` / `python client.py logout`
+- `python client.py creds show|set|reset` - manage credentials (requires login)
+- `python client.py config show|set|reset` - manage UI config (set/reset requires login)
+- Use `--auth-user` and `--auth-pass` for one-shot auth on protected commands
