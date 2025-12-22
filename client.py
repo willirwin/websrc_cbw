@@ -44,7 +44,17 @@ def format_req_err(e: Exception) -> str:
     if isinstance(e, requests.exceptions.ConnectionError):
         return "Connection error (refused / unreachable / server offline)"
     if isinstance(e, requests.exceptions.HTTPError):
-        return f"HTTP error: {e}"
+        msg = str(e)
+        status_part, _, rest = msg.partition(":")
+        rest = rest.strip()
+        if rest.startswith("{"):
+            try:
+                data = json.loads(rest)
+                if isinstance(data, dict) and "error" in data:
+                    return f"{status_part}: {data['error']}"
+            except Exception:
+                pass
+        return f"HTTP error: {msg}"
     return f"Request error: {e}"
 
 
@@ -415,76 +425,83 @@ def main() -> int:
                     return json.load(fh)
             raise ValueError("config set requires --json or --file")
 
-        if args.cmd == "state":
-            _print_state(cli.get_custom_state())
+        try:
+            if args.cmd == "state":
+                _print_state(cli.get_custom_state())
 
-        elif args.cmd == "relay":
-            n = args.n
-            if n < 1 or n > 4:
-                print("ERROR: relay number must be 1..4")
-                return 2
+            elif args.cmd == "relay":
+                n = args.n
+                if n < 1 or n > 4:
+                    print("ERROR: relay number must be 1..4")
+                    return 2
 
-            if args.mode == "on":
-                cli.relay_on(n)
-            elif args.mode == "off":
-                cli.relay_off(n)
-            else:
-                cli.relay_pulse(n, args.ms)
+                if args.mode == "on":
+                    cli.relay_on(n)
+                elif args.mode == "off":
+                    cli.relay_off(n)
+                else:
+                    cli.relay_pulse(n, args.ms)
 
-            _print_state(cli.get_custom_state())
+                _print_state(cli.get_custom_state())
 
-        elif args.cmd == "watch":
-            fails = 0
-            while True:
-                try:
-                    _print_state(cli.get_custom_state())
-                    fails = 0
-                except Exception as e:
-                    fails += 1
-                    print(f"DISCONNECTED: {format_req_err(e)} (fails={fails})")
-                    if args.max_fails > 0 and fails >= args.max_fails:
+            elif args.cmd == "watch":
+                fails = 0
+                while True:
+                    try:
+                        _print_state(cli.get_custom_state())
+                        fails = 0
+                    except Exception as e:
+                        fails += 1
+                        print(f"DISCONNECTED: {format_req_err(e)} (fails={fails})")
+                        if args.max_fails > 0 and fails >= args.max_fails:
+                            return 2
+                    time.sleep(max(0.05, args.interval))
+
+            elif args.cmd == "session":
+                print_json(cli.get_session())
+
+            elif args.cmd == "login":
+                cli.login(args.username, args.password)
+                print("OK: logged in")
+
+            elif args.cmd == "logout":
+                cli.logout()
+                print("OK: logged out")
+
+            elif args.cmd == "creds":
+                if not ensure_auth():
+                    return 2
+
+                if args.action == "show":
+                    print_json(cli.get_credentials())
+                elif args.action == "set":
+                    cli.update_credentials(args.current_password, args.username, args.password)
+                    print("OK: credentials updated")
+                elif args.action == "reset":
+                    print_json(cli.reset_credentials())
+
+            elif args.cmd == "config":
+                if args.action == "show":
+                    print_json(cli.get_ui_config())
+                elif args.action == "set":
+                    if not ensure_auth():
                         return 2
-                time.sleep(max(0.05, args.interval))
+                    cfg = load_config_payload()
+                    cli.set_ui_config(cfg)
+                    print("OK: config saved")
+                elif args.action == "reset":
+                    if not ensure_auth():
+                        return 2
+                    cli.set_ui_config(default_ui_config())
+                    print("OK: config reset to defaults")
 
-        elif args.cmd == "session":
-            print_json(cli.get_session())
-
-        elif args.cmd == "login":
-            cli.login(args.username, args.password)
-            print("OK: logged in")
-
-        elif args.cmd == "logout":
-            cli.logout()
-            print("OK: logged out")
-
-        elif args.cmd == "creds":
-            if not ensure_auth():
-                return 2
-
-            if args.action == "show":
-                print_json(cli.get_credentials())
-            elif args.action == "set":
-                cli.update_credentials(args.current_password, args.username, args.password)
-                print("OK: credentials updated")
-            elif args.action == "reset":
-                print_json(cli.reset_credentials())
-
-        elif args.cmd == "config":
-            if args.action == "show":
-                print_json(cli.get_ui_config())
-            elif args.action == "set":
-                if not ensure_auth():
-                    return 2
-                cfg = load_config_payload()
-                cli.set_ui_config(cfg)
-                print("OK: config saved")
-            elif args.action == "reset":
-                if not ensure_auth():
-                    return 2
-                cli.set_ui_config(default_ui_config())
-                print("OK: config reset to defaults")
-
-        return 0
+            return 0
+        except requests.exceptions.RequestException as e:
+            print(f"ERROR: {format_req_err(e)}")
+            return 2
+        except Exception as e:
+            print(f"ERROR: {e}")
+            return 2
 
     finally:
         cli.close()
