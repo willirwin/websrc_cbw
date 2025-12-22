@@ -33,15 +33,6 @@ function maybeUpdatePollFromCustomState(s) {
     state.timerId = setInterval(refreshStatus, state.pollMs);
 }
 
-// -----------------------------------------------------------------------------
-// Misc helpers
-// -----------------------------------------------------------------------------
-function setReconnectEnabled(enabled) {
-    // enables/disables the "Reconnect" button (Refresh) based on connection state
-    if (!state.els.refresh) return;
-    setDisabled(state.els.refresh, !enabled);
-}
-
 function parseValueColor(s) {
     // parses strings like "72.05 F #Grey" into { value: "72.05 F", color: "Grey" }
     if (typeof s !== "string") return { value: String(s ?? ""), color: "" };
@@ -121,9 +112,6 @@ function cacheDom() {
     // footer
     state.els.conn = state.els.conn || $("#conn");
     // finds element with ID "conn" and caches it
-    state.els.refresh = state.els.refresh || $("#refreshBtn");
-    // finds element with ID "refreshBtn" and caches it
-
     // optional device time fields (add to index.html if desired)
     state.els.clock = state.els.clock || $("#clock");
     // finds element with ID "bootTime" and caches it (may be null if not present)
@@ -189,23 +177,6 @@ export function wireEvents() {
         }
     });
 
-    // Manual refresh button (optional)
-    if (state.els.refresh) {
-    // if refresh button exists
-    state.els.refresh.addEventListener("click", async () => {
-        // reconnect only: do nothing if already connected
-        if (state.connected) return;
-
-        try {
-            setReconnectEnabled(false); // prevent spam clicks
-            await refreshStatus();      // attempt one immediate reconnect poll
-        } finally {
-            // refreshStatus will set enabled/disabled based on success/failure
-        }
-    });
-}
-
-
     refreshStatus();
     // initial status refresh
 }
@@ -217,7 +188,6 @@ export function wireEvents() {
 function renderCustomState(s) {
     // Connection indicator
     setText(state.els.conn, "OK");
-    setReconnectEnabled(false);
 
     // Optional device time fields (only update if elements exist)
     setText(state.els.bootTime, formatDateTime(s.bootTime));
@@ -258,7 +228,6 @@ function renderCustomState(s) {
 function renderDisconnected(e) {
     // internal helper function to update UI on disconnection
     setText(state.els.conn, "Disconnected");
-    setReconnectEnabled(true);
 
     // clear optional fields if present
     setText(state.els.bootTime, "");

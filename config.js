@@ -92,6 +92,7 @@ export function applyUiConfig() {
     if (!titleEl) return;
 
     titleEl.textContent = cfg.title;
+    document.title = cfg.title;
 
     cfg.relays.forEach((relay) => {
         const panel = document.getElementById(`relay${relay.id}`);
