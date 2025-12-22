@@ -1,6 +1,7 @@
 // websrc_cbw_beta/server.js (run from C:\Users\user\Documents\websrc_cbw_beta> node server.js)
 
 // simple Express server to simulate backend API for testing and development
+// NOTE: no authentication; keep this on trusted networks only
 
 import express from "express";
 import path from "path";

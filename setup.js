@@ -1,6 +1,7 @@
 import { getCredentials, isLoggedIn, setCredentials, setLoggedIn } from "./auth.js";
-import { getUiConfig, setUiConfig } from "./config.js";
+import { getDefaultUiConfig, getUiConfig, setUiConfig } from "./config.js";
 
+// Force a login before allowing access to the setup screen.
 const loginUrl = "login.html?next=setup.html";
 
 if (!isLoggedIn()) {
@@ -15,14 +16,18 @@ const currentPasswordEl = document.getElementById("currentPassword");
 const newUsernameEl = document.getElementById("newUsername");
 const newPasswordEl = document.getElementById("newPassword");
 const confirmPasswordEl = document.getElementById("confirmPassword");
+// Sidebar tabs are purely client-side toggles (no page navigation).
 const navItems = Array.from(document.querySelectorAll(".nav-item[data-tab]"));
 const sections = Array.from(document.querySelectorAll(".setup-section"));
 const relayListEl = document.getElementById("relayConfigList");
 const dinListEl = document.getElementById("dinConfigList");
 const sensorListEl = document.getElementById("sensorConfigList");
 const saveIoBtn = document.getElementById("saveIoBtn");
+const resetGeneralBtn = document.getElementById("resetGeneralBtn");
+const resetIoBtn = document.getElementById("resetIoBtn");
 const ioMsgEl = document.getElementById("ioMsg");
 const monitorForm = document.getElementById("monitorForm");
+const resetMonitorBtn = document.getElementById("resetMonitorBtn");
 const monitorMsgEl = document.getElementById("monitorMsg");
 const titleInput = document.getElementById("titleInput");
 const showConnectionEl = document.getElementById("showConnection");
@@ -42,6 +47,10 @@ function setIoMessage(text, type) {
 function setMonitorMessage(text, type) {
     monitorMsgEl.textContent = text;
     monitorMsgEl.className = type ? `form-msg ${type}` : "form-msg";
+}
+
+function confirmAction(message) {
+    return window.confirm(message);
 }
 
 function setActiveTab(tabName) {
@@ -69,6 +78,7 @@ function clearList(listEl) {
     while (listEl.firstChild) listEl.removeChild(listEl.firstChild);
 }
 
+// Builds a reusable row for relay/DI/sensor naming and enablement.
 function createConfigRow(labelText, nameValue, enabledValue, data) {
     const row = document.createElement("div");
     row.className = "config-row";
@@ -155,6 +165,7 @@ function loadMonitorConfig(cfg) {
     showUptimeEl.checked = cfg.appearance.showUptime;
 }
 
+// Extracts current UI values into a normalized config shape.
 function readConfigRows(listEl, kind) {
     const rows = Array.from(listEl.querySelectorAll(".config-row"));
     return rows.map((row, index) => {
@@ -197,6 +208,8 @@ form.addEventListener("submit", (event) => {
     event.preventDefault();
     setMessage("", "");
 
+    if (!confirmAction("Save credential changes?")) return;
+
     const creds = getCredentials();
     const currentPassword = currentPasswordEl.value;
     const newUsername = newUsernameEl.value.trim();
@@ -236,6 +249,7 @@ form.addEventListener("submit", (event) => {
 });
 
 saveIoBtn.addEventListener("click", () => {
+    if (!confirmAction("Save I/O settings changes?")) return;
     const cfg = getUiConfig();
     cfg.relays = readConfigRows(relayListEl, "relay");
     cfg.digitalInputs = readConfigRows(dinListEl, "din");
@@ -244,8 +258,31 @@ saveIoBtn.addEventListener("click", () => {
     setIoMessage("I/O settings saved.", "success");
 });
 
+resetGeneralBtn.addEventListener("click", () => {
+    if (!confirmAction("Reset credentials to default values?")) return;
+    setCredentials({ username: "admin", password: "admin" });
+    currentPasswordEl.value = "";
+    newPasswordEl.value = "";
+    confirmPasswordEl.value = "";
+    refreshUsername();
+    setMessage("Credentials reset to defaults.", "success");
+});
+
+resetIoBtn.addEventListener("click", () => {
+    if (!confirmAction("Reset I/O settings to defaults?")) return;
+    const defaults = getDefaultUiConfig();
+    const cfg = getUiConfig();
+    cfg.relays = defaults.relays;
+    cfg.digitalInputs = defaults.digitalInputs;
+    cfg.sensors = defaults.sensors;
+    setUiConfig(cfg);
+    renderIoConfig(cfg);
+    setIoMessage("I/O settings reset to defaults.", "success");
+});
+
 monitorForm.addEventListener("submit", (event) => {
     event.preventDefault();
+    if (!confirmAction("Save monitor settings changes?")) return;
     const cfg = getUiConfig();
     cfg.title = titleInput.value.trim() || cfg.title;
     cfg.appearance = {
@@ -255,4 +292,15 @@ monitorForm.addEventListener("submit", (event) => {
     };
     setUiConfig(cfg);
     setMonitorMessage("Monitor settings saved.", "success");
+});
+
+resetMonitorBtn.addEventListener("click", () => {
+    if (!confirmAction("Reset monitor settings to defaults?")) return;
+    const defaults = getDefaultUiConfig();
+    const cfg = getUiConfig();
+    cfg.title = defaults.title;
+    cfg.appearance = defaults.appearance;
+    setUiConfig(cfg);
+    loadMonitorConfig(cfg);
+    setMonitorMessage("Monitor settings reset to defaults.", "success");
 });

@@ -117,6 +117,15 @@ body {
         grid-template-columns: 1fr;
         align-items: start;
     }
+
+    .setup-container {
+        max-width: 100%;
+        margin: 18px 12px;
+    }
+
+    .setup-section {
+        font-size: 1.2rem;
+    }
 }
 
 @media (max-width: 900px) {
@@ -158,6 +167,9 @@ body {
 .panel-h {
     font-size: 16px;
     margin-bottom: 8px;
+    font-weight: 700;
+    color: #2f3a4d;
+    letter-spacing: 0.3px;
 }
 
 .section {
@@ -179,6 +191,26 @@ body {
 
 .setup-section.active {
     display: block;
+}
+
+.setup-container {
+    max-width: 650px;
+    margin: 18px 0 18px 24px;
+}
+
+.setup-section {
+    font-size: rem;
+}
+
+.setup-section .panel-h,
+.setup-section .section-title,
+.setup-section .input,
+.setup-section .btn,
+.setup-section .config-label,
+.setup-section .checkbox-inline,
+.setup-section .form-msg,
+.setup-section .hint {
+    font-size: 1em;
 }
 
 .card {
@@ -311,6 +343,12 @@ body {
 
 .kv:first-of-type { border-top: none; }
 
+.di-label {
+    font-weight: 700;
+    color: #2f3a4d;
+    letter-spacing: 0.3px;
+}
+
 .pill {
     padding: 2px 8px;
     border-radius: 10px;
@@ -373,6 +411,12 @@ body {
     display: flex;
     gap: 8px;
     margin-top: 4px;
+}
+
+.form-divider {
+    border: none;
+    border-top: 1px solid #d5dbe2;
+    margin: 8px 0 4px;
 }
 
 .checkbox-row {

@@ -185,6 +185,7 @@ export function wireEvents() {
 // Rendering (customState.json -> DOM)
 // -----------------------------------------------------------------------------
 
+// Maps CBW-style strings into the live DOM (no state mutation beyond visuals).
 function renderCustomState(s) {
     // Connection indicator
     setText(state.els.conn, "OK");

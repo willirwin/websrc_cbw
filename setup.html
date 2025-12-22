@@ -21,7 +21,7 @@
             </aside>
 
             <main class="content">
-                <div class="container">
+                <div class="container setup-container">
                     <div class="page-header">
                         <div>
                             <h3 class="title">CASTLEROAD</h3>
@@ -61,7 +61,10 @@
                                     <span>Confirm New Password</span>
                                     <input class="input" id="confirmPassword" type="password" required />
                                 </label>
-                                <button class="btn" type="submit">Save Changes</button>
+                                <div class="form-actions">
+                                    <button class="btn" type="submit">Save Changes</button>
+                                    <button class="btn" id="resetGeneralBtn" type="button">Reset to Defaults</button>
+                                </div>
                             </form>
                             <div class="hint">Changes are stored locally on this device.</div>
                             <div class="form-msg" id="setupMsg" aria-live="polite"></div>
@@ -84,6 +87,7 @@
                         </div>
                         <div class="form-actions">
                             <button class="btn" id="saveIoBtn" type="button">Save I/O Settings</button>
+                            <button class="btn" id="resetIoBtn" type="button">Reset to Defaults</button>
                         </div>
                         <div class="form-msg" id="ioMsg" aria-live="polite"></div>
                     </section>
@@ -109,7 +113,10 @@
                                     <span>Show Uptime</span>
                                     <input class="checkbox" id="showUptime" type="checkbox" />
                                 </label>
-                                <button class="btn" type="submit">Save Monitor Settings</button>
+                                <div class="form-actions">
+                                    <button class="btn" type="submit">Save Monitor Settings</button>
+                                    <button class="btn" id="resetMonitorBtn" type="button">Reset to Defaults</button>
+                                </div>
                             </form>
                             <div class="hint">These settings affect how the control page looks.</div>
                             <div class="form-msg" id="monitorMsg" aria-live="polite"></div>

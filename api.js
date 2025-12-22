@@ -6,6 +6,7 @@
 // Core request helper
 // -----------------------------------------------------------------------------
 
+// Centralized fetch wrapper; throws on non-2xx so the UI can show "Disconnected".
 async function request(path, { method = "GET", body } = {}) {
     // creates function "request" to make HTTP requests
     const opts = { method, headers: {} };

@@ -1,3 +1,4 @@
+// Local-only auth store for dev/LAN use; not secure for production.
 const STORAGE_KEY = "cbw_auth";
 const SESSION_KEY = "cbw_auth_session";
 
@@ -29,6 +30,7 @@ export function setCredentials(next) {
     return payload;
 }
 
+// Session flag controls access to setup without persisting a long-lived login.
 export function isLoggedIn() {
     return sessionStorage.getItem(SESSION_KEY) === "1";
 }

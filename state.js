@@ -1,6 +1,6 @@
 // websrc_cbw_beta/state.js
 
-// shared application state
+// shared application state for UI + polling coordination
 
 export const state = {
     // polling interval in milliseconds (may be overridden by minRecRefresh)

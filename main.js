@@ -8,6 +8,7 @@ import { applyUiConfig } from "./config.js";
 import { state } from "./state.js";
 // load state from state.js
 
+// Apply stored UI preferences before wiring DOM events.
 applyUiConfig();
 wireEvents();
 // calls wireEvents to set up event listeners

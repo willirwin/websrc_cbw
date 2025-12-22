@@ -1,3 +1,4 @@
+// Single localStorage payload for UI customization to keep read/write simple.
 const CONFIG_KEY = "cbw_ui_config";
 
 function defaultConfig() {
@@ -28,6 +29,7 @@ function defaultConfig() {
     };
 }
 
+// Coerces user-provided config into a safe, predictable shape for the UI.
 function normalizeConfig(raw) {
     const base = defaultConfig();
     const cfg = { ...base, ...(raw || {}) };
@@ -86,6 +88,11 @@ export function setUiConfig(next) {
     return normalized;
 }
 
+// Applies stored UI config to index.html elements (labels, visibility, title).
+export function getDefaultUiConfig() {
+    return normalizeConfig(null);
+}
+
 export function applyUiConfig() {
     const cfg = getUiConfig();
     const titleEl = document.getElementById("pageTitle");
@@ -108,6 +115,7 @@ export function applyUiConfig() {
         if (row) row.style.display = din.enabled ? "" : "none";
     });
 
+    // Map sensor keys to fixed DOM IDs in index.html.
     const sensorMap = {
         vin: { rowId: "vinRow", labelId: "vinLabel" },
         register1: { rowId: "reg1Row", labelId: "reg1Label" },
