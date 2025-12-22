@@ -49,6 +49,40 @@ Optional (CLI):
 - Then install requests in this folder:
   - `python -m pip install requests`
 
+## Run (fresh Linux machine)
+These steps assume a clean Linux install with no Node/Python tooling.
+
+1) Install Node.js and npm:
+   - Ubuntu/Debian:
+     - `sudo apt update`
+     - `sudo apt install -y nodejs npm`
+   - Verify:
+     - `node -v`
+     - `npm -v`
+
+2) Create a project folder and place this repo there:
+   - Example: `/home/user/websrc_cbw`
+   - If you copied a ZIP, extract it into that folder.
+
+3) Open a terminal in the project folder:
+   - `cd /home/user/websrc_cbw`
+
+4) Install Express (creates `node_modules` in this folder):
+   - `npm install express`
+   - This will create `node_modules/` and `package-lock.json` in the same directory.
+
+5) Start the dev server:
+   - `node server.js`
+
+6) Open the UI:
+   - `http://localhost:8000/index.html`
+
+Optional (CLI):
+- Install Python 3 and pip:
+  - `sudo apt install -y python3 python3-pip`
+- Then install requests in this folder:
+  - `python3 -m pip install requests`
+
 ## Configuration storage
 - Auth credentials: `auth.json` (server-side)
 - UI config: `ui-config.json` (server-side)
