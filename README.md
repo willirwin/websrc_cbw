@@ -48,10 +48,6 @@ Lightweight ControlByWeb-style demo UI and local dev server (Node) for an IoT co
 - `util.js` - DOM/util helpers
 - `style.css` - Shared styles
 
-## Notes
-- This is a demo/dev LAN tool only; there is no real authentication.
-- Refreshing the page is the reconnect path (no manual reconnect button).
-
 ## CLI usage (client.py)
 - `python client.py state` - show current device snapshot
 - `python client.py relay on|off|pulse <n> [--ms]` - control relays
