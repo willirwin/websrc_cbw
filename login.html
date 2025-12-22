@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="./style.css" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Admin Login</title>
+    </head>
+    <body>
+        <div class="container">
+            <div class="page-header">
+                <div>
+                    <h3 class="title">CASTLEROAD</h3>
+                    <div class="subtitle">Administrator Access</div>
+                </div>
+                <a class="btn" href="./index.html">Back to Dashboard</a>
+            </div>
+
+            <div class="panel form-panel">
+                <div class="panel-h">Login</div>
+                <form id="loginForm" class="form" autocomplete="on">
+                    <label class="form-row">
+                        <span>Username</span>
+                        <input class="input" id="username" name="username" autocomplete="username" required />
+                    </label>
+                    <label class="form-row">
+                        <span>Password</span>
+                        <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+                    </label>
+                    <button class="btn" type="submit">Sign In</button>
+                </form>
+                <div class="hint">Default credentials: admin / admin.</div>
+                <div class="form-msg" id="loginMsg" aria-live="polite"></div>
+            </div>
+        </div>
+
+        <script type="module" src="./login.js"></script>
+    </body>
+</html>

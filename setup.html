@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="./style.css" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Setup</title>
+    </head>
+    <body>
+        <div class="container">
+            <div class="page-header">
+                <div>
+                    <h3 class="title">CASTLEROAD</h3>
+                    <div class="subtitle">Setup</div>
+                </div>
+                <div class="page-actions">
+                    <a class="btn" href="./index.html">Back to Dashboard</a>
+                    <button class="btn" id="logoutBtn" type="button">Logout</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-h">Account</div>
+                <div class="kv">
+                    <span>Current Username</span>
+                    <span class="pill" id="currentUser">-</span>
+                </div>
+            </div>
+
+            <div class="panel form-panel">
+                <div class="panel-h">Update Credentials</div>
+                <form id="setupForm" class="form" autocomplete="off">
+                    <label class="form-row">
+                        <span>Current Password</span>
+                        <input class="input" id="currentPassword" type="password" required />
+                    </label>
+                    <label class="form-row">
+                        <span>New Username</span>
+                        <input class="input" id="newUsername" required />
+                    </label>
+                    <label class="form-row">
+                        <span>New Password</span>
+                        <input class="input" id="newPassword" type="password" required />
+                    </label>
+                    <label class="form-row">
+                        <span>Confirm New Password</span>
+                        <input class="input" id="confirmPassword" type="password" required />
+                    </label>
+                    <button class="btn" type="submit">Save Changes</button>
+                </form>
+                <div class="hint">Changes are stored locally on this device.</div>
+                <div class="form-msg" id="setupMsg" aria-live="polite"></div>
+            </div>
+        </div>
+
+        <script type="module" src="./setup.js"></script>
+    </body>
+</html>
