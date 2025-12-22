@@ -2,6 +2,7 @@
 // websrc_cbw_beta/api.js
 
 // low-level API functions to communicate with the backend server
+// keeps HTTP details centralized so UI modules stay focused on rendering
 
 // -----------------------------------------------------------------------------
 // Core request helper

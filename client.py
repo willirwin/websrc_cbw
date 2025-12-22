@@ -340,6 +340,7 @@ def main() -> int:
     p.add_argument("--base", default="http://localhost:8000")
     p.add_argument("--connect-timeout", type=float, default=0.5)
     p.add_argument("--read-timeout", type=float, default=2.0)
+    # Optional one-shot auth for protected commands (avoids separate login call).
     p.add_argument("--auth-user", help="Username for commands that require login")
     p.add_argument("--auth-pass", help="Password for commands that require login")
 

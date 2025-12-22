@@ -5,6 +5,7 @@
 // Server-backed config with a local in-memory cache for fast reads.
 
 let cachedConfig = null;
+// in-memory cache avoids extra round trips for repeated reads
 
 // Base defaults used for first run and for reset operations.
 function defaultConfig() {
@@ -74,6 +75,7 @@ function normalizeConfig(raw) {
     return cfg;
 }
 
+// Shared fetch helper for the config API endpoints.
 async function request(path, { method = "GET", body } = {}) {
     const opts = { method, headers: {} };
     if (body !== undefined) {

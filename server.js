@@ -36,6 +36,7 @@ const UI_CONFIG_PATH = path.join(__dirname, "ui-config.json");
 const SESSION_COOKIE = "cbw_session";
 const sessions = new Map();
 // in-memory sessions keyed by token; reset on server restart
+// keep usage in dev/LAN only (no persistence)
 
 function readJsonSafe(filePath, fallback) {
     try {
@@ -107,6 +108,7 @@ function parseCookies(req) {
     }, {});
 }
 
+// API guard: requires a valid session cookie.
 function requireAuth(req, res, next) {
     const cookies = parseCookies(req);
     const token = cookies[SESSION_COOKIE];
@@ -114,6 +116,7 @@ function requireAuth(req, res, next) {
     res.status(401).json({ ok: false, error: "unauthorized" });
 }
 
+// HTML guard: redirects unauthenticated users to login page.
 function requireAuthPage(req, res, next) {
     const cookies = parseCookies(req);
     const token = cookies[SESSION_COOKIE];

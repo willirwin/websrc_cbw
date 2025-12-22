@@ -28,6 +28,7 @@ form.addEventListener("submit", (event) => {
     const username = usernameEl.value.trim();
     const password = passwordEl.value;
 
+    // Submit credentials to the server; on success, go to setup.
     login(username, password)
         .then(() => {
             window.location.href = getNextUrl();

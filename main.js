@@ -11,6 +11,7 @@ import { state } from "./state.js";
 // load state from state.js
 
 // Apply stored UI preferences before wiring DOM events.
+// This ensures labels/visibility are correct before we attach UI handlers.
 applyUiConfig().then(() => {
     wireEvents();
     // calls wireEvents to set up event listeners

@@ -199,6 +199,7 @@ function initUiConfig() {
     loadMonitorConfig(cfg);
 }
 
+// Initial load: verify session, pull config, and populate the tabs.
 async function initPage() {
     try {
         const session = await getSession();

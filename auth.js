@@ -1,6 +1,7 @@
 // websrc_cbw/auth.js
 // -----------------------------------------------------------------------------
 // Server-backed auth helpers for login/logout and credential management
+// Session is maintained by an HttpOnly cookie set by the server.
 // -----------------------------------------------------------------------------
 
 async function request(path, { method = "GET", body } = {}) {
