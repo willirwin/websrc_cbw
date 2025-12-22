@@ -1,6 +1,7 @@
 // websrc_cbw_beta/main.js
-
-// application entrypoint
+// -----------------------------------------------------------------------------
+// Application entrypoint: wire UI and start polling loop
+// -----------------------------------------------------------------------------
 
 import { wireEvents, refreshStatus } from "./ui.js";
 import { applyUiConfig } from "./config.js";

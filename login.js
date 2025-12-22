@@ -1,3 +1,6 @@
+// -----------------------------------------------------------------------------
+// Login screen logic (local-only credentials)
+// -----------------------------------------------------------------------------
 import { getCredentials, setLoggedIn } from "./auth.js";
 
 // Cache form elements once to keep handlers small and fast.
@@ -6,6 +9,7 @@ const usernameEl = document.getElementById("username");
 const passwordEl = document.getElementById("password");
 const msgEl = document.getElementById("loginMsg");
 
+// Writes user-facing status messages into the login panel.
 function setMessage(text, type) {
     msgEl.textContent = text;
     msgEl.className = type ? `form-msg ${type}` : "form-msg";

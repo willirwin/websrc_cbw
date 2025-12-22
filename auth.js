@@ -1,7 +1,10 @@
+// -----------------------------------------------------------------------------
 // Local-only auth store for dev/LAN use; not secure for production.
+// -----------------------------------------------------------------------------
 const STORAGE_KEY = "cbw_auth";
 const SESSION_KEY = "cbw_auth_session";
 
+// Loads stored credentials or initializes defaults for first use.
 export function getCredentials() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -20,6 +23,7 @@ export function getCredentials() {
     return defaults;
 }
 
+// Persists new credentials to localStorage.
 export function setCredentials(next) {
     const payload = {
         username: String(next.username ?? ""),

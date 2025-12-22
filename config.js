@@ -1,6 +1,10 @@
+// -----------------------------------------------------------------------------
+// UI configuration storage + application
+// -----------------------------------------------------------------------------
 // Single localStorage payload for UI customization to keep read/write simple.
 const CONFIG_KEY = "cbw_ui_config";
 
+// Base defaults used for first run and for reset operations.
 function defaultConfig() {
     return {
         title: "CASTLEROAD",
@@ -68,6 +72,7 @@ function normalizeConfig(raw) {
     return cfg;
 }
 
+// Retrieves config from storage or seeds defaults if missing/corrupt.
 export function getUiConfig() {
     const raw = localStorage.getItem(CONFIG_KEY);
     if (raw) {
@@ -82,6 +87,7 @@ export function getUiConfig() {
     return defaults;
 }
 
+// Writes config back to storage after normalization.
 export function setUiConfig(next) {
     const normalized = normalizeConfig(next);
     localStorage.setItem(CONFIG_KEY, JSON.stringify(normalized));
@@ -89,6 +95,7 @@ export function setUiConfig(next) {
 }
 
 // Applies stored UI config to index.html elements (labels, visibility, title).
+// Returns a fresh default config object for resets.
 export function getDefaultUiConfig() {
     return normalizeConfig(null);
 }

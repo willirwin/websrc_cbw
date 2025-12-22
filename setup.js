@@ -1,3 +1,6 @@
+// -----------------------------------------------------------------------------
+// Setup screen logic: auth gating + tabbed config editors
+// -----------------------------------------------------------------------------
 import { getCredentials, isLoggedIn, setCredentials, setLoggedIn } from "./auth.js";
 import { getDefaultUiConfig, getUiConfig, setUiConfig } from "./config.js";
 
@@ -8,6 +11,7 @@ if (!isLoggedIn()) {
     window.location.replace(loginUrl);
 }
 
+// Cache key DOM elements for the General tab.
 const currentUserEl = document.getElementById("currentUser");
 const logoutBtn = document.getElementById("logoutBtn");
 const form = document.getElementById("setupForm");
@@ -17,8 +21,10 @@ const newUsernameEl = document.getElementById("newUsername");
 const newPasswordEl = document.getElementById("newPassword");
 const confirmPasswordEl = document.getElementById("confirmPassword");
 // Sidebar tabs are purely client-side toggles (no page navigation).
+// Cache elements for sidebar tab switching.
 const navItems = Array.from(document.querySelectorAll(".nav-item[data-tab]"));
 const sections = Array.from(document.querySelectorAll(".setup-section"));
+// Cache elements used by the I/O Setup tab.
 const relayListEl = document.getElementById("relayConfigList");
 const dinListEl = document.getElementById("dinConfigList");
 const sensorListEl = document.getElementById("sensorConfigList");
@@ -26,6 +32,7 @@ const saveIoBtn = document.getElementById("saveIoBtn");
 const resetGeneralBtn = document.getElementById("resetGeneralBtn");
 const resetIoBtn = document.getElementById("resetIoBtn");
 const ioMsgEl = document.getElementById("ioMsg");
+// Cache elements for Monitor & Control appearance settings.
 const monitorForm = document.getElementById("monitorForm");
 const resetMonitorBtn = document.getElementById("resetMonitorBtn");
 const monitorMsgEl = document.getElementById("monitorMsg");
