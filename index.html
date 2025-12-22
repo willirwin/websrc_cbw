@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="./style.css" />
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Device</title>
+    </head>
+
+    <body>
+        <div class="container">
+            <h3 class="title" id="pageTitle">Device</h3>
+
+            <div class="grid" id="grid"></div>
+
+            <div class="footer">
+                <div>Connection Status: <span id="conn">Disconnected</span></div>
+                <div><span id="clock">?</span></div>
+                <div>Uptime: <span id="uptimeMs">--:--:--</span></div>
+                <div>
+                    <a class="btn" href="/setup.html" style="text-decoration:none; display:inline-block;">Setup</a>
+                    <button class="btn" id="refreshBtn">Reconnect</button>
+                </div>
+            </div>
+        </div>
+
+        <script type="module" src="./main.js"></script>
+    </body>
+</html>

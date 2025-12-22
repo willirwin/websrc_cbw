@@ -1,0 +1,309 @@
+/* websrc_cbw/style.css */
+
+/* -----------------------------------------------------------------------------
+   Base
+----------------------------------------------------------------------------- */
+
+body {
+    font-family: Arial, sans-serif;
+    background: #e9ecef;
+    margin: 0;
+}
+
+.container {
+    max-width: 980px;
+    margin: 18px auto;
+    padding: 0 12px;
+}
+
+.title {
+    margin: 8px 0 14px;
+    font-weight: 600;
+}
+
+/* -----------------------------------------------------------------------------
+   Layout grid
+----------------------------------------------------------------------------- */
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    justify-content: center;
+}
+
+/* Collapse to single column on small screens */
+@media (max-width: 640px) {
+    .grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* -----------------------------------------------------------------------------
+   Panels
+----------------------------------------------------------------------------- */
+
+.panel {
+    background: #f8f9fa;
+    border: 1px solid #cfd4da;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.panel-h {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+/* -----------------------------------------------------------------------------
+    State bars
+----------------------------------------------------------------------------- */
+
+.bar {
+    padding: 6px;
+    text-align: center;
+    font-weight: 700;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+.di-bar {
+    width: 120px;
+    margin: 0;
+    padding: 4px 30px;;
+    font-weight: 700;
+    border-radius: 3px;
+}
+
+.bar.on { background: #24a13b; }
+.bar.off { background: #f0380a; }
+.bar.grey { background: #868e96; }
+
+/* -----------------------------------------------------------------------------
+   Buttons
+----------------------------------------------------------------------------- */
+
+.btnrow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.btnrow .btn {
+    width: 100%;
+}
+
+.btn {
+    padding: 6px 10px;
+    border: 1px solid #adb5bd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.btn:hover { background: #f1f3f5; }
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* -----------------------------------------------------------------------------
+   Key/value rows (DI + values)
+----------------------------------------------------------------------------- */
+
+.kv {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-top: 1px solid #dee2e6;
+}
+
+.kv:first-of-type { border-top: none; }
+
+.pill {
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid #ced4da;
+    background: #fff;
+    font-variant-numeric: tabular-nums;
+}
+
+/* -----------------------------------------------------------------------------
+   Footer
+----------------------------------------------------------------------------- */
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    gap: 10px;
+
+    /* allow wrap when adding more fields (boot time, uptime, etc.) */
+    flex-wrap: wrap;
+}
+
+
+/* -----------------------------------------------------------------------------
+   Top row (title + setup button)
+----------------------------------------------------------------------------- */
+
+.toprow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.linkbtn {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* -----------------------------------------------------------------------------
+   Setup page layout
+----------------------------------------------------------------------------- */
+
+.setup-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.setup-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 12px;
+}
+
+@media (max-width: 840px) {
+    .setup-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.setup-sidebar {
+    background: #f8f9fa;
+    border: 1px solid #cfd4da;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.setup-nav {
+    display: grid;
+    gap: 6px;
+}
+
+.setup-navbtn {
+    text-align: left;
+    padding: 8px 10px;
+    border: 1px solid #adb5bd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.setup-navbtn:hover { background: #f1f3f5; }
+
+.setup-navbtn.active {
+    background: #e9ecef;
+    font-weight: 700;
+}
+
+.setup-content {
+    display: grid;
+    gap: 12px;
+}
+
+.setup-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.field {
+    display: grid;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.field label {
+    font-weight: 600;
+}
+
+.input {
+    padding: 8px 10px;
+    border: 1px solid #adb5bd;
+    border-radius: 4px;
+    font-family: Arial, sans-serif;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.hint {
+    color: #495057;
+    font-size: 12px;
+}
+
+.setup-row {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid #dee2e6;
+}
+
+.setup-row:first-child { border-top: none; }
+
+@media (max-width: 840px) {
+    .setup-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.setup-row-title {
+    font-weight: 700;
+}
+
+.setup-row-sub {
+    color: #495057;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.setup-row-right {
+    display: grid;
+    grid-template-columns: 1fr 110px 90px;
+    gap: 8px;
+    align-items: center;
+}
+
+@media (max-width: 840px) {
+    .setup-row-right {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.chk {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.btn.small {
+    padding: 6px 10px;
+}
+
+.btnrow2 {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
