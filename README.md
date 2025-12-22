@@ -18,13 +18,36 @@ Lightweight ControlByWeb-style demo UI and local dev server (Node) for an IoT co
 - I/O naming + enable/disable controls stored in localStorage.
 - Appearance controls for title/clock/uptime/connection display.
 
-## Run
-1) Install dependencies (only Express is required):
+## Run (fresh Windows machine)
+These steps assume the computer has nothing installed yet.
+
+1) Install Node.js (includes npm):
+   - Download and install from `https://nodejs.org`
+   - After install, open PowerShell and confirm:
+     - `node -v`
+     - `npm -v`
+
+2) Create a project folder and place this repo there:
+   - Example: `C:\Users\user\Documents\websrc_cbw`
+   - If you copied a ZIP, extract it into that folder.
+
+3) Open PowerShell in the project folder:
+   - `cd C:\Users\user\Documents\websrc_cbw`
+
+4) Install Express (creates `node_modules` in this folder):
    - `npm install express`
-2) Start the dev server:
+   - This will create `node_modules\` and `package-lock.json` in the same directory.
+
+5) Start the dev server:
    - `node server.js`
-3) Open:
+
+6) Open the UI:
    - `http://localhost:8000/index.html`
+
+Optional (CLI):
+- If you want to use `client.py`, install Python 3 from `https://python.org`.
+- Then install requests in this folder:
+  - `python -m pip install requests`
 
 ## Configuration storage
 - Auth credentials: `auth.json` (server-side)
