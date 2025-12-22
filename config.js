@@ -2,8 +2,9 @@
 // -----------------------------------------------------------------------------
 // UI configuration storage + application
 // -----------------------------------------------------------------------------
-// Single localStorage payload for UI customization to keep read/write simple.
-const CONFIG_KEY = "cbw_ui_config";
+// Server-backed config with a local in-memory cache for fast reads.
+
+let cachedConfig = null;
 
 // Base defaults used for first run and for reset operations.
 function defaultConfig() {
@@ -73,36 +74,55 @@ function normalizeConfig(raw) {
     return cfg;
 }
 
-// Retrieves config from storage or seeds defaults if missing/corrupt.
-export function getUiConfig() {
-    const raw = localStorage.getItem(CONFIG_KEY);
-    if (raw) {
-        try {
-            return normalizeConfig(JSON.parse(raw));
-        } catch {
-            return normalizeConfig(null);
-        }
+async function request(path, { method = "GET", body } = {}) {
+    const opts = { method, headers: {} };
+    if (body !== undefined) {
+        opts.headers["content-type"] = "application/json";
+        opts.body = JSON.stringify(body);
     }
-    const defaults = normalizeConfig(null);
-    localStorage.setItem(CONFIG_KEY, JSON.stringify(defaults));
-    return defaults;
+    const res = await fetch(path, opts);
+    if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status} ${res.statusText}: ${text}`);
+    }
+    const ct = res.headers.get("content-type") || "";
+    if (ct.includes("application/json")) return res.json();
+    return res.text();
 }
 
-// Writes config back to storage after normalization.
-export function setUiConfig(next) {
-    const normalized = normalizeConfig(next);
-    localStorage.setItem(CONFIG_KEY, JSON.stringify(normalized));
-    return normalized;
+// Retrieves the cached config (after loadUiConfig has run).
+export function getUiConfig() {
+    return cachedConfig || normalizeConfig(null);
 }
 
-// Applies stored UI config to index.html elements (labels, visibility, title).
 // Returns a fresh default config object for resets.
 export function getDefaultUiConfig() {
     return normalizeConfig(null);
 }
 
-export function applyUiConfig() {
-    const cfg = getUiConfig();
+// Loads config from the server and updates the local cache.
+export async function loadUiConfig() {
+    try {
+        const remote = await request("/api/ui-config", { method: "GET" });
+        cachedConfig = normalizeConfig(remote);
+        return cachedConfig;
+    } catch {
+        cachedConfig = cachedConfig || normalizeConfig(null);
+        return cachedConfig;
+    }
+}
+
+// Writes config to the server and updates the local cache.
+export async function saveUiConfig(next) {
+    const normalized = normalizeConfig(next);
+    cachedConfig = normalized;
+    await request("/api/ui-config", { method: "POST", body: normalized });
+    return normalized;
+}
+
+// Applies stored UI config to index.html elements (labels, visibility, title).
+export async function applyUiConfig() {
+    const cfg = await loadUiConfig();
     const titleEl = document.getElementById("pageTitle");
     if (!titleEl) return;
 

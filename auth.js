@@ -1,46 +1,51 @@
 // websrc_cbw/auth.js
 // -----------------------------------------------------------------------------
-// Local-only auth store for dev/LAN use; not secure for production.
+// Server-backed auth helpers for login/logout and credential management
 // -----------------------------------------------------------------------------
-const STORAGE_KEY = "cbw_auth";
-const SESSION_KEY = "cbw_auth_session";
 
-// Loads stored credentials or initializes defaults for first use.
-export function getCredentials() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-        try {
-            const parsed = JSON.parse(raw);
-            if (parsed && typeof parsed.username === "string" && typeof parsed.password === "string") {
-                return parsed;
-            }
-        } catch {
-            // ignore parse errors and reset defaults
-        }
+async function request(path, { method = "GET", body } = {}) {
+    const opts = { method, headers: {} };
+
+    if (body !== undefined) {
+        opts.headers["content-type"] = "application/json";
+        opts.body = JSON.stringify(body);
     }
 
-    const defaults = { username: "admin", password: "admin" };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
-    return defaults;
+    const res = await fetch(path, opts);
+    if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`HTTP ${res.status} ${res.statusText}: ${text}`);
+    }
+
+    const ct = res.headers.get("content-type") || "";
+    if (ct.includes("application/json")) return res.json();
+    return res.text();
 }
 
-// Persists new credentials to localStorage.
-export function setCredentials(next) {
-    const payload = {
-        username: String(next.username ?? ""),
-        password: String(next.password ?? ""),
-    };
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    return payload;
+// Checks whether the current browser session is authenticated.
+export function getSession() {
+    return request("/api/session", { method: "GET" });
 }
 
-// Session flag controls access to setup without persisting a long-lived login.
-export function isLoggedIn() {
-    return sessionStorage.getItem(SESSION_KEY) === "1";
+// Performs login and establishes a session cookie.
+export function login(username, password) {
+    return request("/api/login", { method: "POST", body: { username, password } });
 }
 
-export function setLoggedIn(enabled) {
-    if (enabled) sessionStorage.setItem(SESSION_KEY, "1");
-    else sessionStorage.removeItem(SESSION_KEY);
+// Clears the server session cookie.
+export function logout() {
+    return request("/api/logout", { method: "POST" });
+}
+
+// Updates credentials server-side.
+export function updateCredentials(username, password, currentPassword) {
+    return request("/api/credentials", {
+        method: "POST",
+        body: { username, password, currentPassword },
+    });
+}
+
+// Resets credentials to defaults on the server.
+export function resetCredentials() {
+    return request("/api/credentials/reset", { method: "POST" });
 }

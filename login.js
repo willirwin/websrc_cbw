@@ -1,8 +1,8 @@
 // websrc_cbw/login.js
 // -----------------------------------------------------------------------------
-// Login screen logic (local-only credentials)
+// Login screen logic (server-backed credentials)
 // -----------------------------------------------------------------------------
-import { getCredentials, setLoggedIn } from "./auth.js";
+import { login } from "./auth.js";
 
 // Cache form elements once to keep handlers small and fast.
 const form = document.getElementById("loginForm");
@@ -22,22 +22,18 @@ function getNextUrl() {
     return params.get("next") || "setup.html";
 }
 
-// Ensure defaults exist so first login has known credentials.
-getCredentials();
-
 form.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const creds = getCredentials();
     const username = usernameEl.value.trim();
     const password = passwordEl.value;
 
-    if (username === creds.username && password === creds.password) {
-        setLoggedIn(true);
-        window.location.href = getNextUrl();
-        return;
-    }
-
-    setMessage("Invalid username or password.", "error");
-    passwordEl.focus();
+    login(username, password)
+        .then(() => {
+            window.location.href = getNextUrl();
+        })
+        .catch(() => {
+            setMessage("Invalid username or password.", "error");
+            passwordEl.focus();
+        });
 });

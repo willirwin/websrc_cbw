@@ -1,0 +1,69 @@
+{
+    "title": "CASTLEROAD",
+    "relays": [
+        {
+            "id": 1,
+            "name": "Relay 1",
+            "enabled": true
+        },
+        {
+            "id": 2,
+            "name": "Relay 2",
+            "enabled": true
+        },
+        {
+            "id": 3,
+            "name": "Relay 3",
+            "enabled": true
+        },
+        {
+            "id": 4,
+            "name": "Relay 4",
+            "enabled": true
+        }
+    ],
+    "digitalInputs": [
+        {
+            "id": 1,
+            "name": "Digital Input 1",
+            "enabled": true
+        },
+        {
+            "id": 2,
+            "name": "Digital Input 2",
+            "enabled": true
+        },
+        {
+            "id": 3,
+            "name": "Digital Input 3",
+            "enabled": true
+        },
+        {
+            "id": 4,
+            "name": "Digital Input 4",
+            "enabled": true
+        }
+    ],
+    "sensors": [
+        {
+            "key": "vin",
+            "name": "VIN",
+            "enabled": true
+        },
+        {
+            "key": "register1",
+            "name": "Register 1",
+            "enabled": true
+        },
+        {
+            "key": "oneWire1",
+            "name": "OneWire 1",
+            "enabled": true
+        }
+    ],
+    "appearance": {
+        "showClock": true,
+        "showUptime": true,
+        "showConnection": true
+    }
+}

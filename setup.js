@@ -2,15 +2,11 @@
 // -----------------------------------------------------------------------------
 // Setup screen logic: auth gating + tabbed config editors
 // -----------------------------------------------------------------------------
-import { getCredentials, isLoggedIn, setCredentials, setLoggedIn } from "./auth.js";
-import { getDefaultUiConfig, getUiConfig, setUiConfig } from "./config.js";
+import { getSession, logout, resetCredentials, updateCredentials } from "./auth.js";
+import { getDefaultUiConfig, getUiConfig, loadUiConfig, saveUiConfig } from "./config.js";
 
 // Force a login before allowing access to the setup screen.
 const loginUrl = "login.html?next=setup.html";
-
-if (!isLoggedIn()) {
-    window.location.replace(loginUrl);
-}
 
 // Cache key DOM elements for the General tab.
 const currentUserEl = document.getElementById("currentUser");
@@ -76,10 +72,9 @@ navItems.forEach((item) => {
     });
 });
 
-function refreshUsername() {
-    const creds = getCredentials();
-    currentUserEl.textContent = creds.username;
-    newUsernameEl.value = creds.username;
+function refreshUsername(username) {
+    currentUserEl.textContent = username || "-";
+    newUsernameEl.value = username || "";
 }
 
 function clearList(listEl) {
@@ -198,18 +193,46 @@ function readConfigRows(listEl, kind) {
     });
 }
 
-function loadUiConfig() {
+function initUiConfig() {
     const cfg = getUiConfig();
     renderIoConfig(cfg);
     loadMonitorConfig(cfg);
 }
 
-refreshUsername();
-loadUiConfig();
+async function initPage() {
+    try {
+        const session = await getSession();
+        if (!session?.authenticated) {
+            window.location.replace(loginUrl);
+            return;
+        }
+    } catch {
+        window.location.replace(loginUrl);
+        return;
+    }
+
+    await loadUiConfig();
+    initUiConfig();
+
+    try {
+        const res = await fetch("/api/credentials", { method: "GET" });
+        if (res.ok) {
+            const data = await res.json();
+            refreshUsername(data.username);
+        }
+    } catch {
+        refreshUsername("");
+    }
+}
+
+initPage();
 
 logoutBtn.addEventListener("click", () => {
-    setLoggedIn(false);
-    window.location.href = "login.html";
+    logout()
+        .catch(() => {})
+        .finally(() => {
+            window.location.href = "login.html";
+        });
 });
 
 form.addEventListener("submit", (event) => {
@@ -218,17 +241,10 @@ form.addEventListener("submit", (event) => {
 
     if (!confirmAction("Save credential changes?")) return;
 
-    const creds = getCredentials();
     const currentPassword = currentPasswordEl.value;
     const newUsername = newUsernameEl.value.trim();
     const newPassword = newPasswordEl.value;
     const confirmPassword = confirmPasswordEl.value;
-
-    if (currentPassword !== creds.password) {
-        setMessage("Current password is incorrect.", "error");
-        currentPasswordEl.focus();
-        return;
-    }
 
     if (!newUsername) {
         setMessage("New username is required.", "error");
@@ -248,12 +264,18 @@ form.addEventListener("submit", (event) => {
         return;
     }
 
-    setCredentials({ username: newUsername, password: newPassword });
-    setMessage("Credentials updated.", "success");
-    currentPasswordEl.value = "";
-    newPasswordEl.value = "";
-    confirmPasswordEl.value = "";
-    refreshUsername();
+    updateCredentials(newUsername, newPassword, currentPassword)
+        .then(() => {
+            setMessage("Credentials updated.", "success");
+            currentPasswordEl.value = "";
+            newPasswordEl.value = "";
+            confirmPasswordEl.value = "";
+            refreshUsername(newUsername);
+        })
+        .catch(() => {
+            setMessage("Current password is incorrect.", "error");
+            currentPasswordEl.focus();
+        });
 });
 
 saveIoBtn.addEventListener("click", () => {
@@ -262,18 +284,29 @@ saveIoBtn.addEventListener("click", () => {
     cfg.relays = readConfigRows(relayListEl, "relay");
     cfg.digitalInputs = readConfigRows(dinListEl, "din");
     cfg.sensors = readConfigRows(sensorListEl, "sensor");
-    setUiConfig(cfg);
-    setIoMessage("I/O settings saved.", "success");
+    saveUiConfig(cfg)
+        .then(() => {
+            setIoMessage("I/O settings saved.", "success");
+        })
+        .catch(() => {
+            setIoMessage("Failed to save I/O settings.", "error");
+        });
 });
 
 resetGeneralBtn.addEventListener("click", () => {
     if (!confirmAction("Reset credentials to default values?")) return;
-    setCredentials({ username: "admin", password: "admin" });
-    currentPasswordEl.value = "";
-    newPasswordEl.value = "";
-    confirmPasswordEl.value = "";
-    refreshUsername();
-    setMessage("Credentials reset to defaults.", "success");
+    resetCredentials()
+        .then((res) => {
+            const username = res?.defaults?.username || "admin";
+            currentPasswordEl.value = "";
+            newPasswordEl.value = "";
+            confirmPasswordEl.value = "";
+            refreshUsername(username);
+            setMessage("Credentials reset to defaults.", "success");
+        })
+        .catch(() => {
+            setMessage("Failed to reset credentials.", "error");
+        });
 });
 
 resetIoBtn.addEventListener("click", () => {
@@ -283,9 +316,14 @@ resetIoBtn.addEventListener("click", () => {
     cfg.relays = defaults.relays;
     cfg.digitalInputs = defaults.digitalInputs;
     cfg.sensors = defaults.sensors;
-    setUiConfig(cfg);
-    renderIoConfig(cfg);
-    setIoMessage("I/O settings reset to defaults.", "success");
+    saveUiConfig(cfg)
+        .then(() => {
+            renderIoConfig(cfg);
+            setIoMessage("I/O settings reset to defaults.", "success");
+        })
+        .catch(() => {
+            setIoMessage("Failed to reset I/O settings.", "error");
+        });
 });
 
 monitorForm.addEventListener("submit", (event) => {
@@ -298,8 +336,13 @@ monitorForm.addEventListener("submit", (event) => {
         showClock: showClockEl.checked,
         showUptime: showUptimeEl.checked,
     };
-    setUiConfig(cfg);
-    setMonitorMessage("Monitor settings saved.", "success");
+    saveUiConfig(cfg)
+        .then(() => {
+            setMonitorMessage("Monitor settings saved.", "success");
+        })
+        .catch(() => {
+            setMonitorMessage("Failed to save monitor settings.", "error");
+        });
 });
 
 resetMonitorBtn.addEventListener("click", () => {
@@ -308,7 +351,12 @@ resetMonitorBtn.addEventListener("click", () => {
     const cfg = getUiConfig();
     cfg.title = defaults.title;
     cfg.appearance = defaults.appearance;
-    setUiConfig(cfg);
-    loadMonitorConfig(cfg);
-    setMonitorMessage("Monitor settings reset to defaults.", "success");
+    saveUiConfig(cfg)
+        .then(() => {
+            loadMonitorConfig(cfg);
+            setMonitorMessage("Monitor settings reset to defaults.", "success");
+        })
+        .catch(() => {
+            setMonitorMessage("Failed to reset monitor settings.", "error");
+        });
 });

@@ -1,11 +1,12 @@
 // websrc_cbw/server.js
-// websrc_cbw_beta/server.js (run from C:\Users\user\Documents\websrc_cbw_beta> node server.js)
 
 // simple Express server to simulate backend API for testing and development
-// NOTE: no authentication; keep this on trusted networks only
+// NOTE: minimal auth added for setup pages; still intended for dev/LAN use
 
 import express from "express";
 import path from "path";
+import fs from "fs";
+import crypto from "crypto";
 import { fileURLToPath } from "url";
 
 // -----------------------------------------------------------------------------
@@ -25,6 +26,191 @@ const __dirname = path.dirname(__filename);
 // computes the directory containing this server.js file
 app.use(express.static(__dirname));
 // serves files in this folder (static frontend)
+
+// -----------------------------------------------------------------------------
+// Auth + UI config storage (server-side)
+// -----------------------------------------------------------------------------
+
+const AUTH_PATH = path.join(__dirname, "auth.json");
+const UI_CONFIG_PATH = path.join(__dirname, "ui-config.json");
+const SESSION_COOKIE = "cbw_session";
+const sessions = new Map();
+// in-memory sessions keyed by token; reset on server restart
+
+function readJsonSafe(filePath, fallback) {
+    try {
+        return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    } catch {
+        return fallback;
+    }
+}
+
+function writeJsonSafe(filePath, data) {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 4));
+}
+
+function defaultAuth() {
+    return { username: "admin", password: "admin" };
+}
+
+function loadAuth() {
+    return readJsonSafe(AUTH_PATH, defaultAuth());
+}
+
+function saveAuth(auth) {
+    writeJsonSafe(AUTH_PATH, auth);
+}
+
+function defaultUiConfig() {
+    return {
+        title: "CASTLEROAD",
+        relays: [
+            { id: 1, name: "Relay 1", enabled: true },
+            { id: 2, name: "Relay 2", enabled: true },
+            { id: 3, name: "Relay 3", enabled: true },
+            { id: 4, name: "Relay 4", enabled: true },
+        ],
+        digitalInputs: [
+            { id: 1, name: "Digital Input 1", enabled: true },
+            { id: 2, name: "Digital Input 2", enabled: true },
+            { id: 3, name: "Digital Input 3", enabled: true },
+            { id: 4, name: "Digital Input 4", enabled: true },
+        ],
+        sensors: [
+            { key: "vin", name: "VIN", enabled: true },
+            { key: "register1", name: "Register 1", enabled: true },
+            { key: "oneWire1", name: "OneWire 1", enabled: true },
+        ],
+        appearance: {
+            showClock: true,
+            showUptime: true,
+            showConnection: true,
+        },
+    };
+}
+
+function loadUiConfig() {
+    return readJsonSafe(UI_CONFIG_PATH, defaultUiConfig());
+}
+
+function saveUiConfig(cfg) {
+    writeJsonSafe(UI_CONFIG_PATH, cfg);
+}
+
+function parseCookies(req) {
+    const header = req.headers?.cookie || "";
+    return header.split(";").reduce((acc, part) => {
+        const [key, ...rest] = part.trim().split("=");
+        if (!key) return acc;
+        acc[key] = decodeURIComponent(rest.join("=") || "");
+        return acc;
+    }, {});
+}
+
+function requireAuth(req, res, next) {
+    const cookies = parseCookies(req);
+    const token = cookies[SESSION_COOKIE];
+    if (token && sessions.has(token)) return next();
+    res.status(401).json({ ok: false, error: "unauthorized" });
+}
+
+function requireAuthPage(req, res, next) {
+    const cookies = parseCookies(req);
+    const token = cookies[SESSION_COOKIE];
+    if (token && sessions.has(token)) return next();
+    res.redirect("/login.html");
+}
+
+function createSession(res, username) {
+    const token = crypto.randomBytes(16).toString("hex");
+    sessions.set(token, { username, created: Date.now() });
+    res.setHeader("Set-Cookie", `${SESSION_COOKIE}=${token}; HttpOnly; Path=/`);
+}
+
+function clearSession(req, res) {
+    const cookies = parseCookies(req);
+    const token = cookies[SESSION_COOKIE];
+    if (token) sessions.delete(token);
+    res.setHeader("Set-Cookie", `${SESSION_COOKIE}=; Max-Age=0; Path=/`);
+}
+
+// -----------------------------------------------------------------------------
+// Auth endpoints
+// -----------------------------------------------------------------------------
+
+app.get("/api/session", (req, res) => {
+    const cookies = parseCookies(req);
+    const token = cookies[SESSION_COOKIE];
+    res.json({ ok: true, authenticated: !!(token && sessions.has(token)) });
+});
+
+app.post("/api/login", (req, res) => {
+    const auth = loadAuth();
+    const { username, password } = req.body || {};
+    if (username === auth.username && password === auth.password) {
+        createSession(res, username);
+        res.json({ ok: true });
+        return;
+    }
+    res.status(401).json({ ok: false, error: "invalid credentials" });
+});
+
+app.post("/api/logout", (req, res) => {
+    clearSession(req, res);
+    res.json({ ok: true });
+});
+
+app.get("/api/credentials", requireAuth, (req, res) => {
+    const auth = loadAuth();
+    res.json({ username: auth.username });
+});
+
+app.post("/api/credentials", requireAuth, (req, res) => {
+    const { currentPassword, username, password } = req.body || {};
+    const auth = loadAuth();
+    if (currentPassword !== auth.password) {
+        res.status(401).json({ ok: false, error: "invalid current password" });
+        return;
+    }
+    if (!username || !password) {
+        res.status(400).json({ ok: false, error: "username and password required" });
+        return;
+    }
+    saveAuth({ username: String(username), password: String(password) });
+    res.json({ ok: true });
+});
+
+app.post("/api/credentials/reset", requireAuth, (req, res) => {
+    const defaults = defaultAuth();
+    saveAuth(defaults);
+    res.json({ ok: true, defaults });
+});
+
+// -----------------------------------------------------------------------------
+// UI config endpoints (protected)
+// -----------------------------------------------------------------------------
+
+app.get("/api/ui-config", (req, res) => {
+    res.json(loadUiConfig());
+});
+
+app.post("/api/ui-config", requireAuth, (req, res) => {
+    const next = req.body || {};
+    saveUiConfig(next);
+    res.json({ ok: true });
+});
+
+// -----------------------------------------------------------------------------
+// Protect setup assets
+// -----------------------------------------------------------------------------
+
+app.get("/setup.html", requireAuthPage, (req, res) => {
+    res.sendFile(path.join(__dirname, "setup.html"));
+});
+
+app.get("/setup.js", requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, "setup.js"));
+});
 
 // -----------------------------------------------------------------------------
 // Simulated device state (this is your "virtual MCU" / "virtual CBW device")

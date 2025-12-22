@@ -26,9 +26,10 @@ Lightweight ControlByWeb-style demo UI and local dev server (Node) for an IoT co
 3) Open:
    - `http://localhost:8000/index.html`
 
-## Configuration storage (local-only)
-- Auth credentials: `localStorage["cbw_auth"]` + `sessionStorage["cbw_auth_session"]`
-- UI config: `localStorage["cbw_ui_config"]`
+## Configuration storage
+- Auth credentials: `auth.json` (server-side)
+- UI config: `ui-config.json` (server-side)
+- Session: in-memory cookie-based session (clears on server restart)
 
 ## File map
 - `server.js` - Express dev server + simulated device state
