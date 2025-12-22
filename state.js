@@ -1,3 +1,4 @@
+// websrc_cbw/state.js
 // websrc_cbw_beta/state.js
 
 // shared application state for UI + polling coordination

@@ -1,3 +1,4 @@
+// websrc_cbw/server.js
 // websrc_cbw_beta/server.js (run from C:\Users\user\Documents\websrc_cbw_beta> node server.js)
 
 // simple Express server to simulate backend API for testing and development
