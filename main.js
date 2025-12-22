@@ -1,5 +1,4 @@
 // websrc_cbw/main.js
-// websrc_cbw_beta/main.js
 // -----------------------------------------------------------------------------
 // Application entrypoint: wire UI and start polling loop
 // -----------------------------------------------------------------------------
