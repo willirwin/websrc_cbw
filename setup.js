@@ -1,4 +1,5 @@
 import { getCredentials, isLoggedIn, setCredentials, setLoggedIn } from "./auth.js";
+import { getUiConfig, setUiConfig } from "./config.js";
 
 const loginUrl = "login.html?next=setup.html";
 
@@ -14,11 +15,49 @@ const currentPasswordEl = document.getElementById("currentPassword");
 const newUsernameEl = document.getElementById("newUsername");
 const newPasswordEl = document.getElementById("newPassword");
 const confirmPasswordEl = document.getElementById("confirmPassword");
+const navItems = Array.from(document.querySelectorAll(".nav-item[data-tab]"));
+const sections = Array.from(document.querySelectorAll(".setup-section"));
+const relayListEl = document.getElementById("relayConfigList");
+const dinListEl = document.getElementById("dinConfigList");
+const sensorListEl = document.getElementById("sensorConfigList");
+const saveIoBtn = document.getElementById("saveIoBtn");
+const ioMsgEl = document.getElementById("ioMsg");
+const monitorForm = document.getElementById("monitorForm");
+const monitorMsgEl = document.getElementById("monitorMsg");
+const titleInput = document.getElementById("titleInput");
+const showConnectionEl = document.getElementById("showConnection");
+const showClockEl = document.getElementById("showClock");
+const showUptimeEl = document.getElementById("showUptime");
 
 function setMessage(text, type) {
     msgEl.textContent = text;
     msgEl.className = type ? `form-msg ${type}` : "form-msg";
 }
+
+function setIoMessage(text, type) {
+    ioMsgEl.textContent = text;
+    ioMsgEl.className = type ? `form-msg ${type}` : "form-msg";
+}
+
+function setMonitorMessage(text, type) {
+    monitorMsgEl.textContent = text;
+    monitorMsgEl.className = type ? `form-msg ${type}` : "form-msg";
+}
+
+function setActiveTab(tabName) {
+    navItems.forEach((item) => {
+        item.classList.toggle("active", item.dataset.tab === tabName);
+    });
+    sections.forEach((section) => {
+        section.classList.toggle("active", section.id === `tab-${tabName}`);
+    });
+}
+
+navItems.forEach((item) => {
+    item.addEventListener("click", () => {
+        setActiveTab(item.dataset.tab);
+    });
+});
 
 function refreshUsername() {
     const creds = getCredentials();
@@ -26,7 +65,128 @@ function refreshUsername() {
     newUsernameEl.value = creds.username;
 }
 
+function clearList(listEl) {
+    while (listEl.firstChild) listEl.removeChild(listEl.firstChild);
+}
+
+function createConfigRow(labelText, nameValue, enabledValue, data) {
+    const row = document.createElement("div");
+    row.className = "config-row";
+    if (data?.id) row.dataset.id = String(data.id);
+    if (data?.key) row.dataset.key = String(data.key);
+    row.dataset.kind = data?.kind || "";
+
+    const label = document.createElement("span");
+    label.className = "config-label";
+    label.textContent = labelText;
+
+    const input = document.createElement("input");
+    input.className = "input config-input";
+    input.value = nameValue;
+    input.dataset.field = "name";
+
+    const checkboxLabel = document.createElement("label");
+    checkboxLabel.className = "checkbox-inline";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "checkbox";
+    checkbox.checked = !!enabledValue;
+    checkbox.dataset.field = "enabled";
+
+    const checkboxText = document.createElement("span");
+    checkboxText.textContent = "Enabled";
+
+    checkboxLabel.appendChild(checkbox);
+    checkboxLabel.appendChild(checkboxText);
+
+    row.appendChild(label);
+    row.appendChild(input);
+    row.appendChild(checkboxLabel);
+    return row;
+}
+
+function renderIoConfig(cfg) {
+    clearList(relayListEl);
+    clearList(dinListEl);
+    clearList(sensorListEl);
+
+    const sensorLabels = {
+        vin: "VIN",
+        register1: "Register 1",
+        oneWire1: "OneWire 1",
+    };
+
+    cfg.relays.forEach((relay) => {
+        const row = createConfigRow(
+            `Relay ${relay.id}`,
+            relay.name,
+            relay.enabled,
+            { kind: "relay", id: relay.id },
+        );
+        relayListEl.appendChild(row);
+    });
+
+    cfg.digitalInputs.forEach((din) => {
+        const row = createConfigRow(
+            `Digital Input ${din.id}`,
+            din.name,
+            din.enabled,
+            { kind: "din", id: din.id },
+        );
+        dinListEl.appendChild(row);
+    });
+
+    cfg.sensors.forEach((sensor) => {
+        const row = createConfigRow(
+            sensorLabels[sensor.key] || sensor.name,
+            sensor.name,
+            sensor.enabled,
+            { kind: "sensor", key: sensor.key },
+        );
+        sensorListEl.appendChild(row);
+    });
+}
+
+function loadMonitorConfig(cfg) {
+    titleInput.value = cfg.title;
+    showConnectionEl.checked = cfg.appearance.showConnection;
+    showClockEl.checked = cfg.appearance.showClock;
+    showUptimeEl.checked = cfg.appearance.showUptime;
+}
+
+function readConfigRows(listEl, kind) {
+    const rows = Array.from(listEl.querySelectorAll(".config-row"));
+    return rows.map((row, index) => {
+        const nameInput = row.querySelector('input[data-field="name"]');
+        const enabledInput = row.querySelector('input[data-field="enabled"]');
+        const name = nameInput ? nameInput.value.trim() : "";
+
+        if (kind === "relay" || kind === "din") {
+            const id = Number(row.dataset.id || index + 1);
+            return {
+                id,
+                name: name || `${kind === "relay" ? "Relay" : "Digital Input"} ${id}`,
+                enabled: enabledInput ? enabledInput.checked : true,
+            };
+        }
+
+        return {
+            key: row.dataset.key || "",
+            name: name || row.dataset.key || "",
+            enabled: enabledInput ? enabledInput.checked : true,
+        };
+    });
+}
+
+function loadUiConfig() {
+    const cfg = getUiConfig();
+    renderIoConfig(cfg);
+    loadMonitorConfig(cfg);
+}
+
 refreshUsername();
+loadUiConfig();
 
 logoutBtn.addEventListener("click", () => {
     setLoggedIn(false);
@@ -73,4 +233,26 @@ form.addEventListener("submit", (event) => {
     newPasswordEl.value = "";
     confirmPasswordEl.value = "";
     refreshUsername();
+});
+
+saveIoBtn.addEventListener("click", () => {
+    const cfg = getUiConfig();
+    cfg.relays = readConfigRows(relayListEl, "relay");
+    cfg.digitalInputs = readConfigRows(dinListEl, "din");
+    cfg.sensors = readConfigRows(sensorListEl, "sensor");
+    setUiConfig(cfg);
+    setIoMessage("I/O settings saved.", "success");
+});
+
+monitorForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const cfg = getUiConfig();
+    cfg.title = titleInput.value.trim() || cfg.title;
+    cfg.appearance = {
+        showConnection: showConnectionEl.checked,
+        showClock: showClockEl.checked,
+        showUptime: showUptimeEl.checked,
+    };
+    setUiConfig(cfg);
+    setMonitorMessage("Monitor settings saved.", "success");
 });

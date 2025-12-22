@@ -3,10 +3,12 @@
 // application entrypoint
 
 import { wireEvents, refreshStatus } from "./ui.js";
+import { applyUiConfig } from "./config.js";
 // load wireEvents and refreshStatus from ui.js
 import { state } from "./state.js";
 // load state from state.js
 
+applyUiConfig();
 wireEvents();
 // calls wireEvents to set up event listeners
 

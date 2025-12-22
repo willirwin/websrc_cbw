@@ -9,13 +9,13 @@
 
     <body>
         <div class="container">
-            <h3 class="title">CASTLEROAD</h3>
+            <h3 class="title" id="pageTitle">CASTLEROAD</h3>
 
             <div class="grid">
                 <!-- Relays -->
                 <!-- Relay 1 -->
                 <div class="panel" id="relay1">
-                    <div class="panel-h">Relay 1</div>
+                    <div class="panel-h" id="relay1Label">Relay 1</div>
                     <div class="bar off" id="relay1Bar">Off</div>
                     <div class="btnrow">
                         <button class="btn" data-relay="1" data-action="on">On</button>
@@ -26,7 +26,7 @@
 
                 <!-- Relay 2 -->
                 <div class="panel" id="relay2">
-                    <div class="panel-h">Relay 2</div>
+                    <div class="panel-h" id="relay2Label">Relay 2</div>
                     <div class="bar off" id="relay2Bar">Off</div>
                     <div class="btnrow">
                         <button class="btn" data-relay="2" data-action="on">On</button>
@@ -37,7 +37,7 @@
 
                 <!-- Relay 3 -->
                 <div class="panel" id="relay3">
-                    <div class="panel-h">Relay 3</div>
+                    <div class="panel-h" id="relay3Label">Relay 3</div>
                     <div class="bar off" id="relay3Bar">Off</div>
                     <div class="btnrow">
                         <button class="btn" data-relay="3" data-action="on">On</button>
@@ -48,7 +48,7 @@
 
                 <!-- Relay 4 -->
                 <div class="panel" id="relay4">
-                    <div class="panel-h">Relay 4</div>
+                    <div class="panel-h" id="relay4Label">Relay 4</div>
                     <div class="bar off" id="relay4Bar">Off</div>
                     <div class="btnrow">
                         <button class="btn" data-relay="4" data-action="on">On</button>
@@ -59,23 +59,23 @@
 
                 <!-- Digital Inputs -->
                 <div class="panel">
-                    <div class="kv">
-                        <span>Digital Input 1</span>
+                    <div class="kv" id="di1Row">
+                        <span id="di1Label">Digital Input 1</span>
                         <div class="bar off di-bar" id="di1Bar">Off</div>
                     </div>
 
-                    <div class="kv">
-                        <span>Digital Input 2</span>
+                    <div class="kv" id="di2Row">
+                        <span id="di2Label">Digital Input 2</span>
                         <div class="bar off di-bar" id="di2Bar">Off</div>
                     </div>
 
-                    <div class="kv">
-                        <span>Digital Input 3</span>
+                    <div class="kv" id="di3Row">
+                        <span id="di3Label">Digital Input 3</span>
                         <div class="bar off di-bar" id="di3Bar">Off</div>
                     </div>
 
-                    <div class="kv">
-                        <span>Digital Input 4</span>
+                    <div class="kv" id="di4Row">
+                        <span id="di4Label">Digital Input 4</span>
                         <div class="bar off di-bar" id="di4Bar">Off</div>
                     </div>
                 </div>
@@ -84,16 +84,16 @@
                 <!-- OneWire / Register / VIN -->
                 <div class="panel">
                     <div class="panel-h">Values</div>
-                    <div class="kv"><span>VIN</span><span class="pill" id="vin">?</span></div>
-                    <div class="kv"><span>Register 1</span><span class="pill" id="reg1">?</span></div>
-                    <div class="kv"><span>OneWire 1</span><span class="pill" id="ow1">?</span></div>
+                    <div class="kv" id="vinRow"><span id="vinLabel">VIN</span><span class="pill" id="vin">?</span></div>
+                    <div class="kv" id="reg1Row"><span id="reg1Label">Register 1</span><span class="pill" id="reg1">?</span></div>
+                    <div class="kv" id="ow1Row"><span id="ow1Label">OneWire 1</span><span class="pill" id="ow1">?</span></div>
                 </div>
             </div>
 
             <div class="footer">
-                <div>Connection Status: <span id="conn">Disconnected</span></div>
-                <div><span id="clock">?</span></div>
-                <div>Uptime: <span id="uptimeMs">?</span></div>
+                <div id="connWrap">Connection Status: <span id="conn">Disconnected</span></div>
+                <div id="clockWrap"><span id="clock">?</span></div>
+                <div id="uptimeWrap">Uptime: <span id="uptimeMs">?</span></div>
                 <div class="footer-actions">
                     <a class="btn" href="./login.html">Admin Login</a>
                     <button class="btn" id="refreshBtn">Reconnect</button>

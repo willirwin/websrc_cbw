@@ -7,50 +7,117 @@
         <title>Setup</title>
     </head>
     <body>
-        <div class="container">
-            <div class="page-header">
-                <div>
-                    <h3 class="title">CASTLEROAD</h3>
-                    <div class="subtitle">Setup</div>
+        <div class="layout">
+            <aside class="sidebar">
+                <div class="sidebar-brand">
+                    <div class="brand-mark">CASTLEROAD</div>
+                    <div class="brand-sub">Setup &amp; Configuration</div>
                 </div>
-                <div class="page-actions">
-                    <a class="btn" href="./index.html">Back to Dashboard</a>
-                    <button class="btn" id="logoutBtn" type="button">Logout</button>
-                </div>
-            </div>
+                <nav class="sidebar-nav" aria-label="Setup sections">
+                    <button class="nav-item active" type="button" data-tab="general">General</button>
+                    <button class="nav-item" type="button" data-tab="io">I/O Setup</button>
+                    <button class="nav-item" type="button" data-tab="monitor">Monitor &amp; Control</button>
+                </nav>
+            </aside>
 
-            <div class="panel">
-                <div class="panel-h">Account</div>
-                <div class="kv">
-                    <span>Current Username</span>
-                    <span class="pill" id="currentUser">-</span>
-                </div>
-            </div>
+            <main class="content">
+                <div class="container">
+                    <div class="page-header">
+                        <div>
+                            <h3 class="title">CASTLEROAD</h3>
+                            <div class="subtitle">Setup &amp; Configuration</div>
+                        </div>
+                        <div class="page-actions">
+                            <a class="btn" href="./index.html">Back to Dashboard</a>
+                            <button class="btn" id="logoutBtn" type="button">Logout</button>
+                        </div>
+                    </div>
 
-            <div class="panel form-panel">
-                <div class="panel-h">Update Credentials</div>
-                <form id="setupForm" class="form" autocomplete="off">
-                    <label class="form-row">
-                        <span>Current Password</span>
-                        <input class="input" id="currentPassword" type="password" required />
-                    </label>
-                    <label class="form-row">
-                        <span>New Username</span>
-                        <input class="input" id="newUsername" required />
-                    </label>
-                    <label class="form-row">
-                        <span>New Password</span>
-                        <input class="input" id="newPassword" type="password" required />
-                    </label>
-                    <label class="form-row">
-                        <span>Confirm New Password</span>
-                        <input class="input" id="confirmPassword" type="password" required />
-                    </label>
-                    <button class="btn" type="submit">Save Changes</button>
-                </form>
-                <div class="hint">Changes are stored locally on this device.</div>
-                <div class="form-msg" id="setupMsg" aria-live="polite"></div>
-            </div>
+                    <section class="setup-section active" id="tab-general">
+                        <div class="section-title">General</div>
+                        <div class="panel">
+                            <div class="panel-h">Current User</div>
+                            <div class="kv">
+                                <span>Username</span>
+                                <span class="pill" id="currentUser">-</span>
+                            </div>
+                        </div>
+
+                        <div class="panel form-panel">
+                            <div class="panel-h">Update Credentials</div>
+                            <form id="setupForm" class="form" autocomplete="off">
+                                <label class="form-row">
+                                    <span>Current Password</span>
+                                    <input class="input" id="currentPassword" type="password" required />
+                                </label>
+                                <label class="form-row">
+                                    <span>New Username</span>
+                                    <input class="input" id="newUsername" required />
+                                </label>
+                                <label class="form-row">
+                                    <span>New Password</span>
+                                    <input class="input" id="newPassword" type="password" required />
+                                </label>
+                                <label class="form-row">
+                                    <span>Confirm New Password</span>
+                                    <input class="input" id="confirmPassword" type="password" required />
+                                </label>
+                                <button class="btn" type="submit">Save Changes</button>
+                            </form>
+                            <div class="hint">Changes are stored locally on this device.</div>
+                            <div class="form-msg" id="setupMsg" aria-live="polite"></div>
+                        </div>
+                    </section>
+
+                    <section class="setup-section" id="tab-io">
+                        <div class="section-title">I/O Setup</div>
+                        <div class="panel">
+                            <div class="panel-h">Relays</div>
+                            <div class="config-list" id="relayConfigList"></div>
+                        </div>
+                        <div class="panel">
+                            <div class="panel-h">Digital Inputs</div>
+                            <div class="config-list" id="dinConfigList"></div>
+                        </div>
+                        <div class="panel">
+                            <div class="panel-h">Sensors</div>
+                            <div class="config-list" id="sensorConfigList"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn" id="saveIoBtn" type="button">Save I/O Settings</button>
+                        </div>
+                        <div class="form-msg" id="ioMsg" aria-live="polite"></div>
+                    </section>
+
+                    <section class="setup-section" id="tab-monitor">
+                        <div class="section-title">Monitor &amp; Control</div>
+                        <div class="panel form-panel">
+                            <div class="panel-h">Control Page Appearance</div>
+                            <form id="monitorForm" class="form" autocomplete="off">
+                                <label class="form-row">
+                                    <span>Dashboard Title</span>
+                                    <input class="input" id="titleInput" />
+                                </label>
+                                <label class="form-row checkbox-row">
+                                    <span>Show Connection Status</span>
+                                    <input class="checkbox" id="showConnection" type="checkbox" />
+                                </label>
+                                <label class="form-row checkbox-row">
+                                    <span>Show Clock</span>
+                                    <input class="checkbox" id="showClock" type="checkbox" />
+                                </label>
+                                <label class="form-row checkbox-row">
+                                    <span>Show Uptime</span>
+                                    <input class="checkbox" id="showUptime" type="checkbox" />
+                                </label>
+                                <button class="btn" type="submit">Save Monitor Settings</button>
+                            </form>
+                            <div class="hint">These settings affect how the control page looks.</div>
+                            <div class="form-msg" id="monitorMsg" aria-live="polite"></div>
+                        </div>
+                    </section>
+                </div>
+            </main>
         </div>
 
         <script type="module" src="./setup.js"></script>

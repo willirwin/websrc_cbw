@@ -10,6 +10,12 @@ body {
     margin: 0;
 }
 
+.layout {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f2f4f6 0%, #e0e5ea 100%);
+}
+
 .container {
     max-width: 980px;
     margin: 18px auto;
@@ -28,6 +34,69 @@ body {
 }
 
 /* -----------------------------------------------------------------------------
+   Sidebar
+----------------------------------------------------------------------------- */
+
+.sidebar {
+    width: 240px;
+    background: #2f3a4d;
+    color: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-brand {
+    padding: 6px 8px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 12px;
+}
+
+.brand-mark {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.brand-sub {
+    font-size: 11px;
+    color: rgba(248, 249, 250, 0.7);
+    margin-top: 4px;
+}
+
+.sidebar-nav {
+    display: grid;
+    gap: 6px;
+}
+
+.nav-item {
+    color: #eef1f4;
+    text-decoration: none;
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    font-size: 13px;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.nav-item.active {
+    background: #4a7bd6;
+    color: #fff;
+}
+
+.content {
+    flex: 1;
+    padding: 12px 0 24px;
+}
+
+/* -----------------------------------------------------------------------------
    Layout grid
 ----------------------------------------------------------------------------- */
 
@@ -42,6 +111,36 @@ body {
 @media (max-width: 640px) {
     .grid {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .config-row {
+        grid-template-columns: 1fr;
+        align-items: start;
+    }
+}
+
+@media (max-width: 900px) {
+    .layout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        overflow-x: auto;
+    }
+
+    .sidebar-brand {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        gap: 8px;
     }
 }
 
@@ -59,6 +158,84 @@ body {
 .panel-h {
     font-size: 16px;
     margin-bottom: 8px;
+}
+
+.section {
+    margin-bottom: 18px;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #495057;
+    margin: 6px 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+}
+
+.setup-section {
+    display: none;
+}
+
+.setup-section.active {
+    display: block;
+}
+
+.card {
+    background: #f8f9fa;
+    border: 1px solid #cfd4da;
+    border-radius: 6px;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: linear-gradient(180deg, #4d566b 0%, #3b4355 100%);
+    color: #f8f9fa;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.card-body {
+    padding: 12px;
+}
+
+.info-grid {
+    display: grid;
+    gap: 8px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #e2e6ea;
+    padding-bottom: 6px;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row .label {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.info-row .value {
+    font-weight: 600;
+}
+
+.divider {
+    border-top: 1px solid #dee2e6;
+    margin: 12px 0;
 }
 
 /* -----------------------------------------------------------------------------
@@ -168,6 +345,73 @@ body {
 .form-row {
     display: grid;
     gap: 6px;
+}
+
+.form-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.inline-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inline-suffix {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.toggle-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.checkbox-row {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+}
+
+.checkbox-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #495057;
+}
+
+.checkbox {
+    width: 16px;
+    height: 16px;
+}
+
+.config-list {
+    display: grid;
+    gap: 8px;
+}
+
+.config-row {
+    display: grid;
+    grid-template-columns: 140px 1fr auto;
+    align-items: center;
+    gap: 10px;
+}
+
+.config-label {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.config-input {
+    min-width: 140px;
 }
 
 .input {
