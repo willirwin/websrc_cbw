@@ -1,5 +1,4 @@
 // websrc_cbw/util.js
-// websrc_cbw_beta/util.js
 
 // utility helper functions for DOM manipulation and error formatting
 // kept intentionally small and null-safe for low-overhead UI updates
