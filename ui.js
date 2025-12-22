@@ -1,5 +1,4 @@
 // websrc_cbw/ui.js
-// websrc_cbw_beta/ui.js
 
 // user interface logic for wiring events and refreshing status
 
