@@ -1,34 +1,34 @@
-// websrc_cbw/util.js
+// websrc_cbw_beta/util.js
 
-export function $(sel, root = document) {                                                // select one element
-    return root.querySelector(sel);                                                      // return first match or null
-}                                                                                        // end $
+// utility helper functions for DOM manipulation and error formatting
 
-export function $all(sel, root = document) {                                             // select multiple elements
-    return Array.from(root.querySelectorAll(sel));                                       // convert NodeList into real array
-}                                                                                        // end $all
-
-export function setText(el, text) {                                                      // safely set visible text
-    if (!el) return;                                                                     // ignore if element missing
-    el.textContent = String(text ?? "");                                                 // set textContent only (no HTML injection)
-}                                                                                        // end setText
-
-export function setDisabled(el, disabled) {                                              // enable/disable a control
-    if (!el) return;                                                                     // ignore if element missing
-    el.disabled = !!disabled;                                                            // set boolean disabled property
-}                                                                                        // end setDisabled
-
-export function formatErr(e) {                                                           // convert unknown error types to string
-    if (e instanceof Error) return e.message;                                            // prefer Error.message
-    return String(e);                                                                    // fallback string conversion
-}                                                                                        // end formatErr
-
-export function escapeHtml(s) {                                                          // escape a string for safe HTML insertion
-    const x = String(s ?? "");                                                           // coerce to string
-    return x                                                                             // begin replacements
-        .replaceAll("&", "&amp;")                                                        // escape &
-        .replaceAll("<", "&lt;")                                                         // escape <
-        .replaceAll(">", "&gt;")                                                         // escape >
-        .replaceAll('"', "&quot;")                                                       // escape "
-        .replaceAll("'", "&#39;");                                                       // escape '
-}                                                                                        // end escapeHtml
+export function $(sel, root = document) {
+    // exports a helper function "$" to select a single DOM element
+    return root.querySelector(sel);
+    // returns first element matching selector "sel" within "root" (default is document)
+}
+export function $all(sel, root = document) {
+    // exports a helper function "$all" to select multiple DOM elements
+    return Array.from(root.querySelectorAll(sel));
+    // makes a real array from Nodelist of all elements matching selector "sel" within "root" (default is document)
+}
+export function setText(el, text) {
+    // exports "setText" to safely display text
+    if (!el) return;
+    // if element is null/undefined, do nothing
+    el.textContent = String(text ?? "");
+    // sets visible text only
+}
+export function setDisabled(el, disabled) {
+    // exports a helper function "setDisabled" to enable/disable a DOM element
+    if (!el) return;
+    // if element is null/undefined, do nothing
+    el.disabled = !!disabled; // force boolean
+}
+export function formatErr(e) {
+    // exports a helper function "formatErr" to turn random throws into strings
+    if (e instanceof Error) return e.message;
+    // if "e" is an Error object, return its message
+    return String(e);
+    // otherwise, convert "e" to a string and return it
+}

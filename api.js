@@ -1,110 +1,72 @@
-// websrc_cbw/api.js
+// websrc_cbw_beta/api.js
 
-async function request(path, { method = "GET", body } = {}) {                            // core helper for API requests
-    const opts = { method, headers: {} };                                                // initialize fetch options
-    if (body !== undefined) {                                                            // if a request body is provided
-        opts.headers["content-type"] = "application/json";                               // set JSON content type
-        opts.body = JSON.stringify(body);                                                // serialize body to JSON string
-    }                                                                              
+// low-level API functions to communicate with the backend server
 
-    const res = await fetch(path, opts);                                                 // perform HTTP request
+// -----------------------------------------------------------------------------
+// Core request helper
+// -----------------------------------------------------------------------------
 
-    if (!res.ok) {                                                                       // if response is not 2xx
-        const text = await res.text().catch(() => "");                                   // read response text best-effort
-        throw new Error(`HTTP ${res.status} ${res.statusText}: ${text}`);                 // throw a useful error
-    }                                                                                 
+async function request(path, { method = "GET", body } = {}) {
+    // creates function "request" to make HTTP requests
+    const opts = { method, headers: {} };
+    // sets up object "opts" for fetch with method and headers
 
-    const ct = res.headers.get("content-type") || "";                                    // read content-type header
-    if (ct.includes("application/json")) return res.json();                              // parse JSON if present
-    return res.text();                                                                   // otherwise return plain text
-}                                                                                   
+    if (body !== undefined) {
+        // if a body is provided
+        opts.headers["content-type"] = "application/json";
+        // set Content-Type header to "application/json"
+        opts.body = JSON.stringify(body);
+        // convert body to JSON string
+    }
 
-// -----------------------------
-// Public config (index page uses this)
-// -----------------------------
+    const res = await fetch(path, opts);
+    // performs the HTTP request using fetch with the given path and options
 
-export function getPublicConfig() {                                                      // fetch config that drives index UI layout
-    return request("/api/publicConfig", { method: "GET" });                              // GET safe config
-}                                                                                 
+    // If server returns non-2xx status, throw with useful info:
+    if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        // attempt to read response text, default to empty string on failure
+        throw new Error(`HTTP ${res.status} ${res.statusText}: ${text}`);
+        // throw an error with status code, status text, and response text
+    }
 
-// -----------------------------
-// Poll endpoint (CBW-style)
-// -----------------------------
-
-export function getCustomState() {                                                       // fetch CBW-style state JSON
-    return request("/customState.json?showUnits=1&showColors=1", { method: "GET" });     // GET poll endpoint
-}                                                                                      
-
-// -----------------------------
-// Relay controls
-// -----------------------------
-
-export function relayOn(n) {                                                             // turn relay n ON
-    return request(`/api/relay/${n}/on`, { method: "POST" });                            // POST to /on
-}                                                                                     
-
-export function relayOff(n) {                                                            // turn relay n OFF
-    return request(`/api/relay/${n}/off`, { method: "POST" });                           // POST to /off
-}                                                                                    
-
-export function relayPulse(n, ms = 500) {                                                // pulse relay n for ms milliseconds
-    return request(`/api/relay/${n}/pulse`, { method: "POST", body: { ms } });           // POST with {ms}
-}                                                                                    
-
-// -----------------------------
-// Auth + Setup config APIs
-// -----------------------------
-
-export function authLogin(username, password) {                                          // login with username/password
-    return fetch("/api/auth/login", {                                                    // POST to /api/auth/login
-        method: "POST",                                                                  // HTTP method
-        headers: { "Content-Type": "application/json" },                                 // JSON content type
-        body: JSON.stringify({ username, password })                                     // JSON-encoded payload
-    }).then(r => {                                                                       // process response
-        if (!r.ok) throw new Error("Invalid credentials");                               // throw on HTTP error
-        return r.json();                                                                 // parse JSON on success
-    });                                                                                 
+    // Some endpoints return no content (204):
+    const ct = res.headers.get("content-type") || "";
+    // reads Content-Type header from the response (or defaults to empty string)
+    if (ct.includes("application/json")) return res.json();
+    // if Content-Type indicates JSON, parse and return JSON
+    return res.text();
+    // otherwise, return response as plain text
 }
 
-export function authLogout() {                                                           // logout
-    return request("/api/auth/logout", { method: "POST" });                              // POST logout
-}                                                                                       
+// -----------------------------------------------------------------------------
+// ControlByWeb-style polling endpoint
+// -----------------------------------------------------------------------------
 
-export function authChange(oldPassword, newUsername, newPassword) {                      // change username/password
-    return request("/api/auth/change", {                                                 // POST change request
-        method: "POST",                                                                  // HTTP method
-        body: { oldPassword, newUsername, newPassword },                                 // payload
-    });                                                                                
-}                                                                                      
-
-export function getConfig() {                                                            // fetch protected config for setup UI
-    return request("/api/config", { method: "GET" });                                    // GET /api/config
-}                                                                                      
-
-export function saveConfig(config) {                                                     // save protected config from setup UI
-    return request("/api/config", { method: "POST", body: { config } });                 // POST config
-}                                                                                   
-
-export function resetConfig() {                                                          // reset config to defaults (credentials preserved)
-    return request("/api/config/reset", { method: "POST" });                             // POST reset
-}                                                                                  
-
-export function authLogin(username, password) {                                          // login with username/password
-    return request("/api/auth/login", { method: "POST", body: { username, password } }); // POST login
+export function getCustomState() {
+    // exports function "getCustomState" to get custom state information
+    // this is the main poll endpoint used by the UI (CBW-style strings)
+    return request("/customState.json?showUnits=1&showColors=1", {
+        method: "GET",
+    });
 }
 
-export function authLogout() {                                                           // logout
-    return request("/api/auth/logout", { method: "POST" });                              // POST logout
+// -----------------------------------------------------------------------------
+// Relay control endpoints (UI -> device control)
+// -----------------------------------------------------------------------------
+
+export function relayOn(n) {
+    // exports function "relayOn" to turn relay n ON
+    return request(`/api/relay/${n}/on`, { method: "POST" });
 }
 
-export function authChange(oldPassword, newUsername, newPassword) {                      // change username/password
-    return request("/api/auth/change", { method: "POST", body: { oldPassword, newUsername, newPassword } });    // POST change request
+export function relayOff(n) {
+    // exports function "relayOff" to turn relay n OFF
+    return request(`/api/relay/${n}/off`, { method: "POST" });
 }
 
-export function getConfig() {                                                            // fetch protected config for setup UI
-    return request("/api/config", { method: "GET" });                                    // GET /api/config
-}
-
-export function saveConfig(config) {                                                     // save protected config from setup UI
-    return request("/api/config", { method: "POST", body: { config } });                 // POST config
+export function relayPulse(n, ms = 500) {
+    // exports function "relayPulse" to pulse relay n for ms milliseconds
+    // body format matches backend: { ms: 250 }
+    return request(`/api/relay/${n}/pulse`, { method: "POST", body: { ms } });
 }

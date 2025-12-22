@@ -1,10 +1,20 @@
-// websrc_cbw/state.js                                                                    // file header comment
+// websrc_cbw_beta/state.js
 
-export const state = {                                                                   // shared application state object
-    pollMs: 1000,                                                                        // polling interval (ms), may be overridden by device minRecRefresh
-    timerId: null,                                                                       // setInterval id for polling loop
-    connected: false,                                                                    // whether last poll succeeded
-    lastStatus: null,                                                                    // most recent /customState.json payload
-    els: {},                                                                             // cached DOM elements
-    config: null,                                                                        // public config used to build index UI (relays/dis/values + titles)
-};                                                                                       // end state
+// shared application state
+
+export const state = {
+    // polling interval in milliseconds (may be overridden by minRecRefresh)
+    pollMs: 1000,
+
+    // will hold the ID of the timer that triggers refreshStatus()
+    timerId: null,
+
+    // connection status (last poll succeeded)
+    connected: false,
+
+    // last JSON payload received from /customState.json
+    lastStatus: null,
+
+    // cached DOM elements (populated by ui.js)
+    els: {},
+};

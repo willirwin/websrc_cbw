@@ -1,26 +1,102 @@
+<!-- HTML document for the web interface -->
+
 <!doctype html>
 <html lang="en">
     <head>
         <link rel="stylesheet" href="./style.css" />
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>Device</title>
+        <title>Sample Webpage</title>
     </head>
 
     <body>
         <div class="container">
-            <h3 class="title" id="pageTitle">Device</h3>
+            <h3 class="title">CASTLEROAD</h3>
 
-            <div class="grid" id="grid"></div>
+            <div class="grid">
+                <!-- Relays -->
+                <!-- Relay 1 -->
+                <div class="panel" id="relay1">
+                    <div class="panel-h">Relay 1</div>
+                    <div class="bar off" id="relay1Bar">Off</div>
+                    <div class="btnrow">
+                        <button class="btn" data-relay="1" data-action="on">On</button>
+                        <button class="btn" data-relay="1" data-action="off">Off</button>
+                        <button class="btn" data-relay="1" data-action="pulse">Pulse</button>
+                    </div>
+                </div>
+
+                <!-- Relay 2 -->
+                <div class="panel" id="relay2">
+                    <div class="panel-h">Relay 2</div>
+                    <div class="bar off" id="relay2Bar">Off</div>
+                    <div class="btnrow">
+                        <button class="btn" data-relay="2" data-action="on">On</button>
+                        <button class="btn" data-relay="2" data-action="off">Off</button>
+                        <button class="btn" data-relay="2" data-action="pulse">Pulse</button>
+                    </div>
+                </div>
+
+                <!-- Relay 3 -->
+                <div class="panel" id="relay3">
+                    <div class="panel-h">Relay 3</div>
+                    <div class="bar off" id="relay3Bar">Off</div>
+                    <div class="btnrow">
+                        <button class="btn" data-relay="3" data-action="on">On</button>
+                        <button class="btn" data-relay="3" data-action="off">Off</button>
+                        <button class="btn" data-relay="3" data-action="pulse">Pulse</button>
+                    </div>
+                </div>
+
+                <!-- Relay 4 -->
+                <div class="panel" id="relay4">
+                    <div class="panel-h">Relay 4</div>
+                    <div class="bar off" id="relay4Bar">Off</div>
+                    <div class="btnrow">
+                        <button class="btn" data-relay="4" data-action="on">On</button>
+                        <button class="btn" data-relay="4" data-action="off">Off</button>
+                        <button class="btn" data-relay="4" data-action="pulse">Pulse</button>
+                    </div>
+                </div>
+
+                <!-- Digital Inputs -->
+                <div class="panel">
+                    <div class="kv">
+                        <span>Digital Input 1</span>
+                        <div class="bar off di-bar" id="di1Bar">Off</div>
+                    </div>
+
+                    <div class="kv">
+                        <span>Digital Input 2</span>
+                        <div class="bar off di-bar" id="di2Bar">Off</div>
+                    </div>
+
+                    <div class="kv">
+                        <span>Digital Input 3</span>
+                        <div class="bar off di-bar" id="di3Bar">Off</div>
+                    </div>
+
+                    <div class="kv">
+                        <span>Digital Input 4</span>
+                        <div class="bar off di-bar" id="di4Bar">Off</div>
+                    </div>
+                </div>
+
+
+                <!-- OneWire / Register / VIN -->
+                <div class="panel">
+                    <div class="panel-h">Values</div>
+                    <div class="kv"><span>VIN</span><span class="pill" id="vin">?</span></div>
+                    <div class="kv"><span>Register 1</span><span class="pill" id="reg1">?</span></div>
+                    <div class="kv"><span>OneWire 1</span><span class="pill" id="ow1">?</span></div>
+                </div>
+            </div>
 
             <div class="footer">
                 <div>Connection Status: <span id="conn">Disconnected</span></div>
                 <div><span id="clock">?</span></div>
-                <div>Uptime: <span id="uptimeMs">--:--:--</span></div>
-                <div>
-                    <a class="btn" href="/setup.html" style="text-decoration:none; display:inline-block;">Setup</a>
-                    <button class="btn" id="refreshBtn">Reconnect</button>
-                </div>
+                <div>Uptime: <span id="uptimeMs">?</span></div>
+                <button class="btn" id="refreshBtn">Reconnect</button>
             </div>
         </div>
 
