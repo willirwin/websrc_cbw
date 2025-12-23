@@ -9,6 +9,7 @@ device behavior.
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import random
@@ -488,4 +489,9 @@ def static_files(filename: str):
 
 
 if __name__ == "__main__":
+    from flask import cli
+
+    cli.show_server_banner = lambda *args, **kwargs: None
+    logging.getLogger("werkzeug").setLevel(logging.WARNING)
+    print("Dev server running at http://localhost:8000")
     app.run(host="0.0.0.0", port=8000)
