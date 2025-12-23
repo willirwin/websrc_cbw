@@ -1,6 +1,6 @@
 # websrc_cbw
 
-Lightweight ControlByWeb-style demo UI and local dev server (Node) for an IoT control panel.
+Lightweight ControlByWeb-style demo UI and local dev server (Python/Flask) for an IoT control panel.
 
 ## What this repo does
 - Serves a single-page control dashboard (`index.html`) plus admin setup screens.
@@ -21,11 +21,12 @@ Lightweight ControlByWeb-style demo UI and local dev server (Node) for an IoT co
 ## Run (fresh Windows machine)
 These steps assume the computer has nothing installed yet.
 
-1) Install Node.js (includes npm):
-   - Download and install from `https://nodejs.org`
+1) Install Python 3:
+   - Download and install from `https://python.org`
+   - During install, check the box to add Python to PATH.
    - After install, open PowerShell and confirm:
-     - `node -v`
-     - `npm -v`
+     - `python --version`
+     - `python -m pip --version`
 
 2) Create a project folder and place this repo there:
    - Example: `C:\Users\user\Documents\websrc_cbw`
@@ -34,31 +35,29 @@ These steps assume the computer has nothing installed yet.
 3) Open PowerShell in the project folder:
    - `cd C:\Users\user\Documents\websrc_cbw`
 
-4) Install Express (creates `node_modules` in this folder):
-   - `npm install express`
-   - This will create `node_modules\` and `package-lock.json` in the same directory.
+4) Install Flask (and any required extensions):
+   - `python -m pip install flask`
 
 5) Start the dev server:
-   - `node server.js`
+   - `python server.py`
 
 6) Open the UI:
    - `http://localhost:8000/index.html`
 
 Optional (CLI):
-- If you want to use `client.py`, install Python 3 from `https://python.org`.
-- Then install requests in this folder:
+- If you want to use `client.py`, install requests in this folder:
   - `python -m pip install requests`
 
 ## Run (fresh Linux machine)
-These steps assume a clean Linux install with no Node/Python tooling.
+These steps assume a clean Linux install with no Python tooling.
 
-1) Install Node.js and npm:
+1) Install Python 3 and pip:
    - Ubuntu/Debian:
      - `sudo apt update`
-     - `sudo apt install -y nodejs npm`
+     - `sudo apt install -y python3 python3-pip`
    - Verify:
-     - `node -v`
-     - `npm -v`
+     - `python3 --version`
+     - `python3 -m pip --version`
 
 2) Create a project folder and place this repo there:
    - Example: `/home/user/websrc_cbw`
@@ -67,20 +66,17 @@ These steps assume a clean Linux install with no Node/Python tooling.
 3) Open a terminal in the project folder:
    - `cd /home/user/websrc_cbw`
 
-4) Install Express (creates `node_modules` in this folder):
-   - `npm install express`
-   - This will create `node_modules/` and `package-lock.json` in the same directory.
+4) Install Flask (and any required extensions):
+   - `python3 -m pip install flask`
 
 5) Start the dev server:
-   - `node server.js`
+   - `python3 server.py`
 
 6) Open the UI:
    - `http://localhost:8000/index.html`
 
 Optional (CLI):
-- Install Python 3 and pip:
-  - `sudo apt install -y python3 python3-pip`
-- Then install requests in this folder:
+- If you want to use `client.py`, install requests in this folder:
   - `python3 -m pip install requests`
 
 ## Configuration storage
@@ -89,8 +85,8 @@ Optional (CLI):
 - Session: in-memory cookie-based session (clears on server restart)
 
 ## File map
-- `server.js` - Express dev server + simulated device state
-- `client.py` - CLI “browser” for state, relays, auth, and config
+- `server.py` - Flask dev server + simulated device state
+- `client.py` - CLI browser for state, relays, auth, and config
 - `index.html` - Main control UI
 - `login.html` - Admin login UI
 - `setup.html` - Admin setup UI
@@ -113,3 +109,4 @@ Optional (CLI):
 - `python client.py creds show|set|reset` - manage credentials (requires login)
 - `python client.py config show|set|reset` - manage UI config (set/reset requires login)
 - Use `--auth-user` and `--auth-pass` for one-shot auth on protected commands
+
